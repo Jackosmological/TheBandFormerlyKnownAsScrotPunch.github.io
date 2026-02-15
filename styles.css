@@ -1,1 +1,16 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
 
+body{
+  /* Full-screen background image */
+  background-image: url("scrotback.png"); /* change name if yours differs */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover; /* fills screen */
+  min-height: 100vh;
+
+  /* iPhone Safari fix for "full height" */
+  min-height: 100svh;
+}
