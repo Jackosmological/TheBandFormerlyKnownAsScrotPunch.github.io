@@ -5,7 +5,7 @@ html, body{
 
 body{
   /* IMPORTANT: change the filename if yours is different */
-  background: url("background.png") center / cover no-repeat;
+  background: url("scrotpunch.png") center / cover no-repeat;
 
   /* Make sure it fills the visible screen area */
   min-height: 100vh;
