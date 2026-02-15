@@ -1,16 +1,23 @@
-html, body {
+html, body{
   height: 100%;
   margin: 0;
 }
 
 body{
-  /* Full-screen background image */
-  background-image: url("scrotback.png"); /* change name if yours differs */
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover; /* fills screen */
-  min-height: 100vh;
+  /* IMPORTANT: change the filename if yours is different */
+  background: url("background.png") center / cover no-repeat;
 
-  /* iPhone Safari fix for "full height" */
-  min-height: 100svh;
+  /* Make sure it fills the visible screen area */
+  min-height: 100vh;
+  min-height: 100svh; /* better on iPhone Safari */
+
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #000;
+}
+
+/* 2) Your page content (optional) */
+.content{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 18px;
 }
