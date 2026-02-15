@@ -4,10 +4,8 @@ html, body{
 }
 
 body{
-  /* IMPORTANT: change the filename if yours is different */
   background: url("scrotpunch.png") center / cover no-repeat;
 
-  /* Make sure it fills the visible screen area */
   min-height: 100vh;
   min-height: 100svh; /* better on iPhone Safari */
 
@@ -15,7 +13,6 @@ body{
   color: #000;
 }
 
-/* 2) Your page content (optional) */
 .content{
   max-width: 900px;
   margin: 0 auto;
