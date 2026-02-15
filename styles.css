@@ -1,29 +1,31 @@
 html, body{
-  margin:0;
-  padding:0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* ✅ disables scrolling */
 }
 
 body{
-  background: url("scrotback.png") top center / 100% auto no-repeat;
-  min-height: 2400px; /* adjust if needed */
+  background: url("scrotback.png") center / cover no-repeat; /* ✅ fill screen */
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color:#000;
+  color: #000;
 }
 
+/* Content */
 .content{
   max-width: 900px;
   margin: 0 auto;
   padding: 48px 18px;
 }
 
-/* Thick black border + controlled size */
+/* Video: controlled size + thick black border */
 .band-video{
-  width: 320px;         /* video size */
-  max-width: 100%;      /* prevents overflow on phone */
+  width: 320px;
+  max-width: 100%;
   height: auto;
 
-  border: 14px solid #000;   /* thick black box */
-  box-sizing: border-box;    /* border doesn't break sizing */
+  border: 14px solid #000;
+  box-sizing: border-box;
   display: block;
   margin-top: 20px;
 }
