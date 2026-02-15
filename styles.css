@@ -1,30 +1,9 @@
-:root{
-  --bg-file: url("scrotback.png");
-  --bg-height: 2400px;   /* <-- change this to your PNG height in pixels */
-}
-
-html, body{
-  margin: 0;
-  padding: 0;
+@@ -4,7 +4,7 @@ html, body{
 }
 
 body{
-  /* Show the whole image (no cropping) */
-  background-image: var(--bg-file);
-  background-repeat: no-repeat;
-  background-position: top center;
-  background-size: 100% auto;     /* full width, height scales naturally */
+  background: url("scrotpunch.png") center / cover no-repeat;
+  background: url("scrotback.png") center / cover no-repeat;
 
-  /* Make the page scroll to the bottom of the image */
-  min-height: var(--bg-height);
-
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: #000;
-}
-
-/* Optional content styling */
-.content{
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 48px 18px;
-}
+  min-height: 100vh;
+  min-height: 100svh; /* better on iPhone Safari */
