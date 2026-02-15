@@ -4,8 +4,13 @@ html, body{
 }
 
 body{
-  background: url("scrotpunch.png") top center / 100% auto no-repeat;
-  min-height: 2400px; /* adjust if needed */
+  background-image: url("scrotpunch.png");
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: 100% auto;
+
+  min-height: 2400px; /* adjust to match image height */
+
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color:#000;
 }
@@ -14,16 +19,4 @@ body{
   max-width: 900px;
   margin: 0 auto;
   padding: 48px 18px;
-}
-
-/* Thick black border + controlled size */
-.band-video{
-  width: 320px;         /* video size */
-  max-width: 100%;      /* prevents overflow on phone */
-  height: auto;
-
-  border: 14px solid #000;   /* thick black box */
-  box-sizing: border-box;    /* border doesn't break sizing */
-  display: block;
-  margin-top: 20px;
 }
