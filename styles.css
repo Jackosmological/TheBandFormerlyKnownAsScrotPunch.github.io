@@ -38,7 +38,7 @@ opacity:.75;
 pointer-events:none;
 }
 
-/* VIDEO */
+/* VIDEO (HIDDEN UNTIL PLAY PRESSED) */
 .tv-video{
 position:absolute;
 z-index:1;
@@ -51,8 +51,12 @@ height:78%;
 object-fit:cover;
 border:none;
 
-/* START HIDDEN (fix for early appearance) */
 opacity:0;
+}
+
+/* When TV is ON (after play pressed) */
+.tv-on .tv-video{
+opacity:1;
 }
 
 /* CRT SCANLINES */
@@ -83,8 +87,8 @@ opacity:.75;
 pointer-events:none;
 }
 
-/* SHIMMER */
-.tv::after{
+/* STARTUP FLASH (NO VIDEO) */
+.tv-startup::after{
 content:"";
 position:absolute;
 z-index:3;
@@ -94,47 +98,15 @@ top:8%;
 width:78%;
 height:78%;
 
-background:linear-gradient(to bottom,
-transparent,
-rgba(255,255,255,.1),
-transparent);
-
-opacity:.15;
-transform:translateY(-120%);
-pointer-events:none;
-}
-
-.tv-playing::after{
-animation:crt-roll 3s linear infinite;
-}
-
-@keyframes crt-roll{
-0%{transform:translateY(-120%)}
-100%{transform:translateY(120%)}
-}
-
-/* STARTUP ANIMATION */
-.tv-startup .tv-video{
-animation:start 900ms ease-out forwards;
-}
-
-@keyframes start{
-0%{
+background:white;
 opacity:0;
-transform:scaleY(.05);
-filter:brightness(2);
+animation:startFlash 900ms ease-out;
 }
 
-40%{
-opacity:1;
-transform:scaleY(1);
-filter:brightness(1.3);
-}
-
-100%{
-opacity:1;
-filter:brightness(1);
-}
+@keyframes startFlash{
+0%{opacity:1;}
+40%{opacity:.4;}
+100%{opacity:0;}
 }
 
 /* TV FRAME */
