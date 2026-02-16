@@ -52,14 +52,5 @@ body{
   border: none;
   box-sizing: border-box;
 }
-.tv-video{
-  border: none;
-  outline: none;
-}
-.band-video,
-.video-box,
-.video-box video{
-  border: none !important;
-  outline: none !important;
-}
+
 
