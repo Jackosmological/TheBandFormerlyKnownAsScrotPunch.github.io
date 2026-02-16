@@ -131,7 +131,7 @@ position:absolute;
 top:50%;
 left:50%;
 transform:translate(-40%,-50%);
-border-left:25px solid white;
-border-top:15px solid transparent;
-border-bottom:15px solid transparent;
+border-left:8.2px solid white;
+border-top:5px solid transparent;
+border-bottom:5px solid transparent;
 }
