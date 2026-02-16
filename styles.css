@@ -159,20 +159,37 @@ box-shadow:0 2px 8px rgba(0,0,0,.5);
 transform:scale(1.05);
 }
 
-/* Example placement (EDIT THESE to sit over your TV buttons) */
-#v1{ left:14%; top:82%; }
-#v2{ left:23%; top:82%; }
-#v3{ left:32%; top:82%; }
-#v4{ left:41%; top:82%; }
-#v5{ left:50%; top:82%; }
+/* ================================
+   NEW POSITIONS/SIZES (match TV buttons)
+   ================================ */
 
-/* Default button (bigger) */
-#vDefault{
-width:54px;
-height:54px;
+/* Small vertical buttons (1–5) on the right panel */
+#v1,#v2,#v3,#v4,#v5{
+width:18px;
+height:18px;
 border-radius:999px;
-right:8%;
-bottom:8%;
 font-size:10px;
 line-height:1;
+padding:0;
+transform:translate(-50%,-50%);
+}
+
+/* These percentages are tuned to your screenshot; adjust as needed */
+#v1{ left:76.6%; top:56.2%; }
+#v2{ left:76.6%; top:61.5%; }
+#v3{ left:76.6%; top:66.8%; }
+#v4{ left:76.6%; top:72.1%; }
+#v5{ left:76.6%; top:77.4%; }
+
+/* Default button on the large circular knob (bottom right) */
+#vDefault{
+width:62px;
+height:62px;
+border-radius:999px;
+font-size:10px;
+line-height:1.05;
+padding:0 6px;
+transform:translate(-50%,-50%);
+left:83.0%;
+top:73.6%;
 }
