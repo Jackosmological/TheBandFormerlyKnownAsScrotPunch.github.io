@@ -104,7 +104,7 @@ pointer-events:none;
 /* PLAY BUTTON (stays visible always) */
 .play-btn{
 position:absolute;
-left:2%;
+left:-10%;
 top:6%;
 width:78%;
 height:78%;
