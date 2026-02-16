@@ -25,12 +25,12 @@ body{
   display: inline-block;
 
   width: min(420px, 95vw);  /* SMALLER: change 420px to taste */
-  margin-top: -28px;        /* MOVE UP: more negative = higher */
+  margin-top: -32px;        /* MOVE UP: more negative = higher */
 }
 
 /* the TV frame image */
 .tv-frame{
-  width: 105%;
+  width: 115%;
   height: auto;
   display: block;
   position: relative;
