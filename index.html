@@ -3,74 +3,46 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>The band formerly known as scrot punch</title>
+<title>CRT TEST</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
-<main class="content">
-<h1>The band formerly known as scrot punch</h1>
-<p>were not called scrot punch!! DO NOT call us that.</p>
-
 <div class="tv" id="tv">
 
-  <!-- Screen texture -->
-  <img class="tv-screen" src="screen.png" alt="">
+  <img class="tv-screen" src="screen.png">
 
-  <!-- VHS STATIC LAYER -->
   <div class="tv-static"></div>
 
-  <!-- Video -->
-  <video class="tv-video" id="bandVideo" playsinline preload="metadata">
-    <source src="band.mp4" type="video/mp4" />
+  <video class="tv-video" id="v">
+    <source src="band.mp4" type="video/mp4">
   </video>
 
-  <!-- Play Button -->
-  <button class="play-btn" id="playBtn"></button>
+  <button class="play-btn" id="btn"></button>
 
-  <!-- TV Frame -->
-  <img class="tv-frame" src="tv.png" alt="">
+  <img class="tv-frame" src="tv.png">
 
 </div>
 
-</main>
-
 <script>
 const tv = document.getElementById("tv");
-const v = document.getElementById("bandVideo");
-const btn = document.getElementById("playBtn");
+const v = document.getElementById("v");
+const btn = document.getElementById("btn");
 
-/* STARTUP CRT SWEEP */
-window.addEventListener("load", () => {
-  tv.classList.add("tv-startup");
-  setTimeout(()=>tv.classList.remove("tv-startup"), 1200);
-});
-
-/* PLAY BUTTON */
-btn.onclick = async ()=>{
-  try{
-    tv.classList.add("tv-on");
-    tv.classList.add("tv-static-burst");
-
-    setTimeout(()=>{
-      tv.classList.remove("tv-static-burst");
-      v.play();
-      btn.style.display="none";
-    }, 500);
-
-  }catch(e){}
+window.onload = ()=>{
+  tv.classList.add("startup");
+  setTimeout(()=> tv.classList.remove("startup"),1500);
 };
 
-/* Pause toggle */
-v.onclick = ()=>{
-  if(v.paused){
+btn.onclick = ()=>{
+  tv.classList.add("staticburst");
+  setTimeout(()=>{
+    tv.classList.remove("staticburst");
+    tv.classList.add("on");
     v.play();
     btn.style.display="none";
-  } else {
-    v.pause();
-    btn.style.display="block";
-  }
+  },600);
 };
 </script>
 
