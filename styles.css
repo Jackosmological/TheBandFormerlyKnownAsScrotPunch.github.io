@@ -16,47 +16,86 @@ margin:0;
 padding:12px;
 }
 
-/* TV wrapper */
+/* TV */
 .tv{
 position:relative;
 display:inline-block;
 width:min(420px,95vw);
 }
 
+/* CURVED CRT DISTORTION */
+.tv{
+filter: contrast(1.05) saturate(1.05);
+}
+
+.tv::after{
+content:"";
+position:absolute;
+left:8.5%;
+top:8%;
+width:78%;
+height:78%;
+border-radius:18% / 12%;
+box-shadow:
+inset 0 0 60px rgba(0,0,0,.4),
+inset 0 0 120px rgba(0,0,0,.3);
+pointer-events:none;
+z-index:3;
+}
+
 /* SCREEN TEXTURE */
 .tv-screen{
 position:absolute;
 z-index:0;
-
 left:8.5%;
 top:8%;
 width:78%;
 height:78%;
-
 object-fit:cover;
 opacity:.75;
-pointer-events:none;
 }
 
-/* VIDEO (HIDDEN UNTIL PLAY PRESSED) */
+/* VIDEO */
 .tv-video{
 position:absolute;
 z-index:1;
-
 left:8.5%;
 top:8%;
 width:78%;
 height:78%;
-
 object-fit:cover;
-border:none;
-
 opacity:0;
 }
 
-/* When TV is ON (after play pressed) */
 .tv-on .tv-video{
 opacity:1;
+}
+
+/* STATIC NOISE */
+.tv-static{
+position:absolute;
+z-index:2;
+left:8.5%;
+top:8%;
+width:78%;
+height:78%;
+background:
+repeating-linear-gradient(
+0deg,
+rgba(255,255,255,.08) 0px,
+rgba(0,0,0,.08) 2px,
+transparent 4px
+);
+opacity:0;
+}
+
+.tv-static-burst .tv-static{
+animation:staticBurst .5s steps(6);
+}
+
+@keyframes staticBurst{
+0%{opacity:1;}
+100%{opacity:0;}
 }
 
 /* CRT SCANLINES */
@@ -64,12 +103,10 @@ opacity:1;
 content:"";
 position:absolute;
 z-index:2;
-
 left:8.5%;
 top:8%;
 width:78%;
 height:78%;
-
 background:
 repeating-linear-gradient(
 to bottom,
@@ -77,58 +114,46 @@ rgba(0,0,0,.15) 0px,
 rgba(0,0,0,.15) 1px,
 transparent 3px,
 transparent 4px
-),
-radial-gradient(ellipse at center,
-rgba(255,255,255,.03),
-rgba(0,0,0,.4));
-
+);
 mix-blend-mode:multiply;
 opacity:.75;
-pointer-events:none;
 }
 
-/* STARTUP FLASH (NO VIDEO) */
-.tv-startup::after{
-content:"";
-position:absolute;
-z-index:3;
+/* POWER ON LINE SWEEP */
+.tv-startup .tv-static{
+opacity:1;
+animation:powerSweep 1.2s ease-out;
+}
 
-left:8.5%;
-top:8%;
-width:78%;
-height:78%;
-
-background:white;
+@keyframes powerSweep{
+0%{
+transform:scaleY(.02);
+filter:brightness(2);
+}
+40%{
+transform:scaleY(1);
+}
+100%{
 opacity:0;
-animation:startFlash 900ms ease-out;
+}
 }
 
-@keyframes startFlash{
-0%{opacity:1;}
-40%{opacity:.4;}
-100%{opacity:0;}
-}
-
-/* TV FRAME */
+/* FRAME */
 .tv-frame{
 width:100%;
-height:auto;
 display:block;
 position:relative;
 z-index:4;
-pointer-events:none;
 }
 
 /* PLAY BUTTON */
 .play-btn{
 position:absolute;
 z-index:5;
-
 left:8.5%;
 top:8%;
 width:78%;
 height:78%;
-
 background:transparent;
 border:none;
 cursor:pointer;
