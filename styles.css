@@ -19,10 +19,13 @@ body{
 }
 
 /* Video: thick black border + controlled size */
+/* TV wrapper (smaller + moved up) */
 .tv{
   position: relative;
   display: inline-block;
-  width: min(700px, 100%);   /* size of the whole TV on the page */
+
+  width: min(420px, 95vw);  /* SMALLER: change 420px to taste */
+  margin-top: -30px;        /* MOVE UP: more negative = higher */
 }
 
 /* the TV frame image */
@@ -32,25 +35,20 @@ body{
   display: block;
   position: relative;
   z-index: 2;
-  pointer-events: none; /* clicks pass through */
+  pointer-events: none;
 }
 
-/* the video, positioned to sit behind the TV “screen” opening */
+/* the video in the TV screen */
 .tv-video{
   position: absolute;
   z-index: 1;
 
-  /* 🔧 TUNING KNOBS (adjust these until it perfectly matches the TV glass) */
   left: 8.5%;
-  top: 14%;
+  top: 16%;
   width: 69%;
   height: 63%;
 
-  /* fill the screen opening without black bars */
   object-fit: cover;
-
-  /* keep your border OFF here; the TV bezel is the border now */
   border: none;
   box-sizing: border-box;
-}
 }
