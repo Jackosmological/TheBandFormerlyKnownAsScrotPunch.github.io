@@ -1,60 +1,69 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>The band formerly known as scrot punch</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The band formerly known as scrot punch</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
 
-  <body>
-    <main class="content">
-      <h1>The band formerly known as scrot punch</h1>
-      <p>were not called scrot punch!! DO NOT call us that.</p>
+<body>
 
-      <div class="tv" id="tv">
-        <video class="tv-video" id="bandVideo" playsinline preload="metadata">
-          <source src="band.mp4" type="video/mp4" />
-        </video>
+<main class="content">
+<h1>The band formerly known as scrot punch</h1>
+<p>were not called scrot punch!! DO NOT call us that.</p>
 
-        <!-- Custom Play Button -->
-        <button class="play-btn" id="playBtn" aria-label="Play video"></button>
+<div class="tv" id="tv">
 
-        <img class="tv-frame" src="tv.png" alt="">
-      </div>
-    </main>
+  <!-- Screen texture (behind video) -->
+  <img class="tv-screen" src="screen.png" alt="">
 
-    <script>
-      const tv = document.getElementById("tv");
-      const v = document.getElementById("bandVideo");
-      const btn = document.getElementById("playBtn");
+  <!-- Video -->
+  <video class="tv-video" id="bandVideo" playsinline preload="metadata">
+    <source src="band.mp4" type="video/mp4" />
+  </video>
 
-      // Startup flicker on page load
-      window.addEventListener("load", () => {
-        tv.classList.add("tv-startup");
-        setTimeout(() => tv.classList.remove("tv-startup"), 900);
-      });
+  <!-- Play Button -->
+  <button class="play-btn" id="playBtn"></button>
 
-      function syncUI(){
-        btn.style.display = v.paused ? "block" : "none";
-        tv.classList.toggle("tv-playing", !v.paused);
-      }
+  <!-- TV Frame -->
+  <img class="tv-frame" src="tv.png" alt="">
 
-      btn.addEventListener("click", async () => {
-        try { await v.play(); } catch(e) {}
-        syncUI();
-      });
+</div>
 
-      // Optional: tap video area to pause/play
-      v.addEventListener("click", async () => {
-        if (v.paused) { try { await v.play(); } catch(e) {} }
-        else v.pause();
-        syncUI();
-      });
+</main>
 
-      v.addEventListener("play", syncUI);
-      v.addEventListener("pause", syncUI);
-      syncUI();
-    </script>
-  </body>
+<script>
+const tv = document.getElementById("tv");
+const v = document.getElementById("bandVideo");
+const btn = document.getElementById("playBtn");
+
+window.addEventListener("load", () => {
+  tv.classList.add("tv-startup");
+  setTimeout(()=>tv.classList.remove("tv-startup"), 900);
+});
+
+function syncUI(){
+  btn.style.display = v.paused ? "block" : "none";
+  tv.classList.toggle("tv-playing", !v.paused);
+}
+
+btn.onclick = async ()=>{
+  try{ await v.play(); }catch(e){}
+  syncUI();
+};
+
+v.onclick = async ()=>{
+  if(v.paused){ try{ await v.play(); }catch(e){} }
+  else v.pause();
+  syncUI();
+};
+
+v.onplay = syncUI;
+v.onpause = syncUI;
+
+syncUI();
+</script>
+
+</body>
 </html>
