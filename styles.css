@@ -181,10 +181,10 @@ transform:translate(-50%,-50%);
 #v4{ left:79.2%; top:71.0%; }
 #v5{ left:79.2%; top:76.0%; }
 
-/* Default button — match the large circular knob size and center it */
+/* Default button — slightly smaller to match the large circular knob */
 #vDefault{
-width:56px;
-height:56px;
+width:52px;
+height:52px;
 border-radius:999px;
 font-size:10px;
 line-height:1.05;
