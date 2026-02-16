@@ -30,7 +30,7 @@ body{
 
 /* the TV frame image */
 .tv-frame{
-  width: 1%;
+  width: 100%;
   height: auto;
   display: block;
   position: relative;
@@ -51,5 +51,11 @@ body{
   object-fit: cover;
   border: none;
   box-sizing: border-box;
+}
+.band-video,
+.video-box,
+.video-box video{
+  border: none !important;
+  outline: none !important;
 }
 
