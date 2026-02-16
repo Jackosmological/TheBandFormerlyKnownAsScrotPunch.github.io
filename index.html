@@ -18,6 +18,11 @@
     <source src="static.mp4" type="video/mp4">
   </video>
 
+  <!-- Idle overlay video (50% opacity, quiet) -->
+  <video class="tv-idle-video" id="idleVideo" loop playsinline preload="auto">
+    <source src="idle.mp4" type="video/mp4">
+  </video>
+
   <video class="tv-video" id="video" loop playsinline preload="metadata">
     <source src="band.mp4" type="video/mp4">
   </video>
@@ -48,17 +53,23 @@ const video = document.getElementById("video");
 const videoSource = video.querySelector("source");
 
 const staticVideo = document.getElementById("staticVideo");
+const idleVideo = document.getElementById("idleVideo");
 
 const btn = document.getElementById("playBtn");
 const staticAudio = document.getElementById("staticAudio");
 
 let videoMode = false;
 let switching = false;
+let idleActive = false;
 
 /* Timing */
 const DELAY_BEFORE_NEW_VIDEO_MS = 1500;  // keep your 1.5s delay
 const QUICK_FADE_MS = 400;              // fade to static (visual/audio) in ~0.4s
 const SLOW_CROSSFADE_MS = 2000;         // static out + video in completes in 2s
+
+/* Idle */
+const IDLE_AFTER_MS = 30000;
+let idleTimer = null;
 
 /* ---------- audio fade helper ---------- */
 let fadeRAF = null;
@@ -80,15 +91,27 @@ let audioUnlocked = false;
 function unlockAudio(){
   if(audioUnlocked) return;
   audioUnlocked = true;
-  // Try to start static audio silently (so later fades work reliably)
+
   staticAudio.volume = 0;
   staticAudio.play().then(()=> {
-    // leave it paused unless we’re showing static, to match your vibe
     staticAudio.pause();
     staticAudio.currentTime = 0;
   }).catch(()=>{});
 }
 window.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
+
+/* ---------- idle timer helpers ---------- */
+function resetIdleTimer(){
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    enterIdleMode();
+  }, IDLE_AFTER_MS);
+}
+
+/* Reset idle timer on any “interaction” */
+["pointerdown","keydown","touchstart","mousemove"].forEach(evt => {
+  window.addEventListener(evt, resetIdleTimer, { passive:true });
+});
 
 /* ---------- static layer controls ---------- */
 async function startStaticLayerQuick(){
@@ -96,11 +119,9 @@ async function startStaticLayerQuick(){
   tv.classList.remove("static-out");
 
   // start static video (muted -> should autoplay without gesture)
-  try{
-    await staticVideo.play();
-  }catch(e){}
+  try{ await staticVideo.play(); }catch(e){}
 
-  // start / fade in static audio (gesture usually available on button click)
+  // start / fade in static audio
   if(staticAudio.paused){
     staticAudio.currentTime = 0;
     staticAudio.volume = 0;
@@ -126,10 +147,64 @@ function fadeOutStaticLayerSlow(){
   }, SLOW_CROSSFADE_MS + 50);
 }
 
+/* ---------- idle mode ---------- */
+async function enterIdleMode(){
+  if(switching || idleActive) return;
+
+  // Only do the “fade out current video” if we actually started video mode.
+  if(!videoMode){
+    // already static-only; just ensure static stays on and idle overlay plays
+    await startStaticLayerQuick();
+  } else {
+    // Fade out whatever is currently playing (same style as switching)
+    tv.classList.add("video-fadeout");
+    await startStaticLayerQuick();
+
+    // After the quick fade completes, pause the main video
+    setTimeout(() => {
+      try{ video.pause(); }catch(e){}
+    }, QUICK_FADE_MS + 50);
+  }
+
+  // Static stays ON (no fade out)
+  tv.classList.remove("static-out");
+
+  // Start idle overlay at 50% opacity + 20% volume, looped
+  idleActive = true;
+  tv.classList.add("idle-on");
+
+  idleVideo.muted = false;
+  idleVideo.volume = 0.2;
+
+  try{
+    idleVideo.currentTime = 0;
+    await idleVideo.play();
+  }catch(e){
+    // If autoplay is blocked for idle audio, it will still show the video when allowed.
+  }
+}
+
+function exitIdleMode(){
+  if(!idleActive) return;
+
+  idleActive = false;
+  tv.classList.remove("idle-on");
+
+  // stop idle overlay
+  try{ idleVideo.pause(); }catch(e){}
+  idleVideo.currentTime = 0;
+
+  // When leaving idle, we want the normal transition code to control fades.
+  // Keep static running if it already is; switchToVideo will manage it.
+}
+
 /* ---------- core switch logic ---------- */
 async function switchToVideo(src){
   if(switching) return;
   switching = true;
+
+  // Any button press exits idle mode
+  exitIdleMode();
 
   // Ensure we’re in video mode
   if(!videoMode){
@@ -166,6 +241,9 @@ async function switchToVideo(src){
 
 /* ---------- play button behavior ---------- */
 btn.onclick = async ()=>{
+  resetIdleTimer();
+  exitIdleMode();
+
   if(!videoMode){
     await switchToVideo(videoSource.getAttribute("src") || "band.mp4");
     return;
@@ -183,10 +261,14 @@ btn.onclick = async ()=>{
 document.querySelectorAll(".vid-btn").forEach(b => {
   b.addEventListener("click", async (e) => {
     e.stopPropagation();
+    resetIdleTimer();
     const src = b.dataset.src;
     if(src) await switchToVideo(src);
   });
 });
+
+/* Start the idle timer immediately */
+resetIdleTimer();
 </script>
 
 </body>
