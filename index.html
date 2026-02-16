@@ -13,7 +13,10 @@
 
   <img class="tv-screen" src="screen.png" alt="">
 
-  <div class="tv-static"></div>
+  <!-- NEW: Static video layer -->
+  <video class="tv-static-video" id="staticVideo" loop playsinline muted preload="metadata">
+    <source src="static.mp4" type="video/mp4">
+  </video>
 
   <video class="tv-video" id="video" loop playsinline preload="metadata">
     <source src="band.mp4" type="video/mp4">
@@ -23,7 +26,7 @@
 
   <img class="tv-frame" src="tv.png" alt="">
 
-  <!-- NEW: Red video select buttons (topmost) -->
+  <!-- Red video select buttons (topmost) -->
   <button class="vid-btn" id="v1" data-src="band1.mp4" aria-label="Play band 1">1</button>
   <button class="vid-btn" id="v2" data-src="band2.mp4" aria-label="Play band 2">2</button>
   <button class="vid-btn" id="v3" data-src="band3.mp4" aria-label="Play band 3">3</button>
@@ -40,54 +43,127 @@
 
 <script>
 const tv = document.getElementById("tv");
+
 const video = document.getElementById("video");
 const videoSource = video.querySelector("source");
+
+const staticVideo = document.getElementById("staticVideo");
+const staticVideoSource = staticVideo.querySelector("source");
+
 const btn = document.getElementById("playBtn");
 const staticAudio = document.getElementById("staticAudio");
 
 let videoMode = false;
+let switching = false;
 
-/* Start static visuals immediately */
-tv.classList.add("static-on");
+/* ---------- audio fade helper ---------- */
+let fadeRAF = null;
+function fadeAudioTo(target, ms=300){
+  cancelAnimationFrame(fadeRAF);
+  const startVol = Number.isFinite(staticAudio.volume) ? staticAudio.volume : 0;
+  const start = performance.now();
 
-/* Try to start static audio as soon as possible.
-   NOTE: many browsers block autoplay audio until user interacts. */
-function startStaticAudio(){
-  staticAudio.volume = 0.6;
-  staticAudio.play().catch(()=>{ /* autoplay may be blocked */ });
+  function tick(t){
+    const p = Math.min(1, (t - start) / ms);
+    staticAudio.volume = startVol + (target - startVol) * p;
+    if(p < 1) fadeRAF = requestAnimationFrame(tick);
+  }
+  fadeRAF = requestAnimationFrame(tick);
 }
-window.addEventListener("load", startStaticAudio);
 
-/* Helper: switch the video src + play, while preserving your layering/tweaks */
-async function playVideoSrc(src){
-  // If we’re not in video mode yet, do the same transition as your first click
+/* ---------- static layer controls ---------- */
+function startStaticLayerQuick(){
+  tv.classList.add("static-on");
+  tv.classList.remove("static-out");
+
+  // start static video
+  try{ staticVideo.play(); }catch(e){}
+
+  // start / fade in static audio (may be blocked until user gesture)
+  if(staticAudio.paused){
+    staticAudio.volume = 0;
+    staticAudio.play().catch(()=>{});
+  }
+  fadeAudioTo(0.6, 180);
+}
+
+function fadeOutStaticLayerSlow(){
+  tv.classList.add("static-out");
+  // fade audio down slowly too
+  fadeAudioTo(0, 1600);
+
+  // after fade finishes, fully stop the layer + clean classes
+  setTimeout(() => {
+    tv.classList.remove("static-on");
+    tv.classList.remove("static-out");
+    staticVideo.pause();
+    staticVideo.currentTime = 0;
+
+    // pause audio if effectively silent
+    if(staticAudio.volume <= 0.02){
+      staticAudio.pause();
+      staticAudio.currentTime = 0;
+    }
+  }, 1700);
+}
+
+/* ---------- initial: show static immediately ---------- */
+tv.classList.add("static-on");
+window.addEventListener("load", () => {
+  // Try to start static video + audio (audio may be blocked)
+  try{ staticVideo.play(); }catch(e){}
+  staticAudio.volume = 0.6;
+  staticAudio.play().catch(()=>{});
+});
+
+/* ---------- core switch logic ---------- */
+async function switchToVideo(src){
+  if(switching) return;
+  switching = true;
+
+  // Ensure we’re in "video mode" (same transition you had)
   if(!videoMode){
     videoMode = true;
-    tv.classList.remove("static-on");
     tv.classList.add("video-on");
-    staticAudio.pause();
-    staticAudio.currentTime = 0;
   }
 
-  // Swap only if different
-  const current = videoSource.getAttribute("src") || "";
-  if(current !== src){
-    video.pause();
-    videoSource.setAttribute("src", src);
-    video.load();
-  }
+  // 1) QUICK: fade out current video + fade in static
+  tv.classList.add("video-fadeout");     // quick fade to black
+  startStaticLayerQuick();              // quick static in
 
-  try{ await video.play(); }catch(e){}
+  // 2) Wait 1.5s before starting the new clip
+  setTimeout(async () => {
+    // Set new source if needed
+    const current = videoSource.getAttribute("src") || "";
+    if(current !== src){
+      video.pause();
+      videoSource.setAttribute("src", src);
+      video.load();
+    }
+
+    // Start playing (may require user gesture; buttons count as a gesture)
+    try{ await video.play(); }catch(e){}
+
+    // 3) Start the slow crossfade: static out, video in
+    tv.classList.remove("video-fadeout");  // video returns to opacity 1 via CSS slow transition
+    fadeOutStaticLayerSlow();
+
+    // Allow a bit of time for the crossfade to finish before unlocking
+    setTimeout(() => {
+      switching = false;
+    }, 1700);
+  }, 1500);
 }
 
-/* Button: first click starts video (and stops static), later clicks pause/play video */
+/* ---------- play button behavior (kept, but now uses the same switch logic on first click) ---------- */
 btn.onclick = async ()=>{
   if(!videoMode){
-    await playVideoSrc(videoSource.getAttribute("src") || "band.mp4");
+    // First click: behave like starting the default video through the same pipeline
+    await switchToVideo(videoSource.getAttribute("src") || "band.mp4");
     return;
   }
 
-  // toggle pause/play
+  // toggle pause/play (no static transition here, per your original behavior)
   if(video.paused){
     try{ await video.play(); }catch(e){}
   }else{
@@ -95,13 +171,12 @@ btn.onclick = async ()=>{
   }
 };
 
-/* NEW: red buttons switch clips */
+/* ---------- red buttons switch clips with static transition ---------- */
 document.querySelectorAll(".vid-btn").forEach(b => {
   b.addEventListener("click", async (e) => {
-    // Ensure clicks go to these buttons, not the big play overlay logic
     e.stopPropagation();
     const src = b.dataset.src;
-    if(src) await playVideoSrc(src);
+    if(src) await switchToVideo(src);
   });
 });
 </script>
