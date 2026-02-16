@@ -12,41 +12,48 @@
       <h1>The band formerly known as scrot punch</h1>
       <p>were not called scrot punch!! DO NOT call us that.</p>
 
-      <div class="tv">
+      <div class="tv" id="tv">
         <video class="tv-video" id="bandVideo" playsinline preload="metadata">
           <source src="band.mp4" type="video/mp4" />
         </video>
 
         <!-- Custom Play Button -->
-        <button class="play-btn" id="playBtn"></button>
+        <button class="play-btn" id="playBtn" aria-label="Play video"></button>
 
         <img class="tv-frame" src="tv.png" alt="">
       </div>
-
     </main>
 
     <script>
+      const tv = document.getElementById("tv");
       const v = document.getElementById("bandVideo");
       const btn = document.getElementById("playBtn");
 
+      // Startup flicker on page load
+      window.addEventListener("load", () => {
+        tv.classList.add("tv-startup");
+        setTimeout(() => tv.classList.remove("tv-startup"), 900);
+      });
+
       function syncUI(){
         btn.style.display = v.paused ? "block" : "none";
+        tv.classList.toggle("tv-playing", !v.paused);
       }
 
       btn.addEventListener("click", async () => {
-        await v.play();
+        try { await v.play(); } catch(e) {}
         syncUI();
       });
 
+      // Optional: tap video area to pause/play
       v.addEventListener("click", async () => {
-        if (v.paused) await v.play();
+        if (v.paused) { try { await v.play(); } catch(e) {} }
         else v.pause();
         syncUI();
       });
 
       v.addEventListener("play", syncUI);
       v.addEventListener("pause", syncUI);
-
       syncUI();
     </script>
   </body>
