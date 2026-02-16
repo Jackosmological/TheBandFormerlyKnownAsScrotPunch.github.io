@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CRT TEST</title>
-<link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CRT TV</title>
+<link rel="stylesheet" href="styles.css"/>
 </head>
 
 <body>
@@ -15,34 +15,61 @@
 
   <div class="tv-static"></div>
 
-  <video class="tv-video" id="v">
+  <video class="tv-video" id="video" loop>
     <source src="band.mp4" type="video/mp4">
   </video>
 
-  <button class="play-btn" id="btn"></button>
+  <button class="play-btn" id="playBtn"></button>
 
   <img class="tv-frame" src="tv.png">
 
 </div>
 
+<audio id="staticAudio" loop>
+  <source src="static.mp3" type="audio/mpeg">
+</audio>
+
 <script>
 const tv = document.getElementById("tv");
-const v = document.getElementById("v");
-const btn = document.getElementById("btn");
+const video = document.getElementById("video");
+const btn = document.getElementById("playBtn");
+const staticAudio = document.getElementById("staticAudio");
 
+let videoMode = false;
+
+/* STARTUP */
 window.onload = ()=>{
   tv.classList.add("startup");
-  setTimeout(()=> tv.classList.remove("startup"),1500);
+
+  setTimeout(()=>{
+    tv.classList.remove("startup");
+    tv.classList.add("static-on");
+
+    staticAudio.volume = 0.6;
+    staticAudio.play().catch(()=>{});
+  },1200);
 };
 
-btn.onclick = ()=>{
-  tv.classList.add("staticburst");
-  setTimeout(()=>{
-    tv.classList.remove("staticburst");
-    tv.classList.add("on");
-    v.play();
-    btn.style.display="none";
-  },600);
+/* PLAY BUTTON */
+btn.onclick = async ()=>{
+
+  if(!videoMode){
+    videoMode = true;
+
+    tv.classList.remove("static-on");
+    tv.classList.add("video-on");
+
+    staticAudio.pause();
+
+    await video.play();
+  }
+  else{
+    if(video.paused){
+      video.play();
+    }else{
+      video.pause();
+    }
+  }
 };
 </script>
 
