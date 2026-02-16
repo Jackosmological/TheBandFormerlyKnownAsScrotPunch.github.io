@@ -15,14 +15,21 @@
 
 <div class="tv" id="tv">
 
+  <!-- Screen texture -->
   <img class="tv-screen" src="screen.png" alt="">
 
+  <!-- VHS STATIC LAYER -->
+  <div class="tv-static"></div>
+
+  <!-- Video -->
   <video class="tv-video" id="bandVideo" playsinline preload="metadata">
     <source src="band.mp4" type="video/mp4" />
   </video>
 
+  <!-- Play Button -->
   <button class="play-btn" id="playBtn"></button>
 
+  <!-- TV Frame -->
   <img class="tv-frame" src="tv.png" alt="">
 
 </div>
@@ -34,22 +41,28 @@ const tv = document.getElementById("tv");
 const v = document.getElementById("bandVideo");
 const btn = document.getElementById("playBtn");
 
-/* Startup animation ONLY (no video visible yet) */
+/* STARTUP CRT SWEEP */
 window.addEventListener("load", () => {
   tv.classList.add("tv-startup");
-  setTimeout(()=>tv.classList.remove("tv-startup"), 900);
+  setTimeout(()=>tv.classList.remove("tv-startup"), 1200);
 });
 
 /* PLAY BUTTON */
 btn.onclick = async ()=>{
   try{
-    tv.classList.add("tv-on");   // reveal video
-    await v.play();
-    btn.style.display="none";
+    tv.classList.add("tv-on");
+    tv.classList.add("tv-static-burst");
+
+    setTimeout(()=>{
+      tv.classList.remove("tv-static-burst");
+      v.play();
+      btn.style.display="none";
+    }, 500);
+
   }catch(e){}
 };
 
-/* Optional click video to pause */
+/* Pause toggle */
 v.onclick = ()=>{
   if(v.paused){
     v.play();
