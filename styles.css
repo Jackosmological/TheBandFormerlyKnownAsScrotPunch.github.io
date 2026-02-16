@@ -20,7 +20,13 @@ body{
 
 /* Video: thick black border + controlled size */
 /* TV wrapper (smaller + moved up) */
+.tv{
+  position: relative;
+  display: inline-block;
 
+  width: min(420px, 95vw);  /* SMALLER: change 420px to taste */
+  margin-top: -30px;        /* MOVE UP: more negative = higher */
+}
 
 /* the TV frame image */
 .tv-frame{
