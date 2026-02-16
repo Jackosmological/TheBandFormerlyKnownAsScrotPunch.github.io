@@ -103,7 +103,7 @@ pointer-events:none;
 }
 
 .tv-playing::after{
-animation:crt-roll 3s linear infinite;
+animation:crt-roll 2s linear infinite;
 }
 
 @keyframes crt-roll{
@@ -113,7 +113,7 @@ animation:crt-roll 3s linear infinite;
 
 /* STARTUP FLICKER */
 .tv-startup .tv-video{
-animation:start 900ms ease-out;
+animation:start 1200ms ease-out;
 }
 
 @keyframes start{
