@@ -12,14 +12,42 @@
       <h1>The band formerly known as scrot punch</h1>
       <p>were not called scrot punch!! DO NOT call us that.</p>
 
-     <div class="tv">
-  <video class="tv-video" controls>
-    <source src="band.mp4" type="video/mp4" />
-    Your browser does not support this video.
-  </video>
+      <div class="tv">
+        <video class="tv-video" id="bandVideo" playsinline preload="metadata">
+          <source src="band.mp4" type="video/mp4" />
+        </video>
 
-  <img class="tv-frame" src="tv.png" alt="">
-</div>
+        <!-- Custom Play Button -->
+        <button class="play-btn" id="playBtn"></button>
+
+        <img class="tv-frame" src="tv.png" alt="">
+      </div>
+
     </main>
+
+    <script>
+      const v = document.getElementById("bandVideo");
+      const btn = document.getElementById("playBtn");
+
+      function syncUI(){
+        btn.style.display = v.paused ? "block" : "none";
+      }
+
+      btn.addEventListener("click", async () => {
+        await v.play();
+        syncUI();
+      });
+
+      v.addEventListener("click", async () => {
+        if (v.paused) await v.play();
+        else v.pause();
+        syncUI();
+      });
+
+      v.addEventListener("play", syncUI);
+      v.addEventListener("pause", syncUI);
+
+      syncUI();
+    </script>
   </body>
 </html>
