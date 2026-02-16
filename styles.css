@@ -1,77 +1,151 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CRT TV</title>
-<link rel="stylesheet" href="styles.css"/>
-</head>
+body{
+margin:0;
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#111;
+font-family:sans-serif;
+}
 
-<body>
+.tv{
+position:relative;
+width:420px;
+}
 
-<div class="tv" id="tv">
+/* SCREEN */
+.tv-screen{
+position:absolute;
+left:8%;
+top:8%;
+width:78%;
+height:78%;
+object-fit:cover;
+opacity:.8;
+z-index:0;
+}
 
-  <img class="tv-screen" src="screen.png">
+/* VIDEO */
+.tv-video{
+position:absolute;
+left:8%;
+top:8%;
+width:78%;
+height:78%;
+object-fit:cover;
+opacity:0;
+z-index:1;
+}
 
-  <div class="tv-static"></div>
+/* VIDEO ON */
+.video-on .tv-video{
+opacity:1;
+transition:opacity .6s;
+}
 
-  <video class="tv-video" id="video" loop>
-    <source src="band.mp4" type="video/mp4">
-  </video>
+/* STATIC */
+.tv-static{
+position:absolute;
+left:8%;
+top:8%;
+width:78%;
+height:78%;
+z-index:2;
 
-  <button class="play-btn" id="playBtn"></button>
+background:
+repeating-linear-gradient(
+0deg,
+rgba(255,255,255,.15) 0px,
+rgba(0,0,0,.15) 2px,
+transparent 4px
+);
 
-  <img class="tv-frame" src="tv.png">
+opacity:0;
+}
 
-</div>
+/* STATIC ON */
+.static-on .tv-static{
+opacity:1;
+animation: staticNoise .25s infinite;
+}
 
-<audio id="staticAudio" loop>
-  <source src="static.mp3" type="audio/mpeg">
-</audio>
+/* STATIC NOISE FLICKER */
+@keyframes staticNoise{
+0%{ transform:translateY(0px); }
+50%{ transform:translateY(1px); }
+100%{ transform:translateY(0px); }
+}
 
-<script>
-const tv = document.getElementById("tv");
-const video = document.getElementById("video");
-const btn = document.getElementById("playBtn");
-const staticAudio = document.getElementById("staticAudio");
+/* STARTUP SWEEP */
+.startup .tv-static{
+opacity:1;
+animation: sweep 1.2s ease-out;
+}
 
-let videoMode = false;
+@keyframes sweep{
+0%{
+transform:scaleY(.05);
+}
+100%{
+opacity:0;
+}
+}
 
-/* STARTUP */
-window.onload = ()=>{
-  tv.classList.add("startup");
+/* SCANLINES */
+.tv::before{
+content:"";
+position:absolute;
+left:8%;
+top:8%;
+width:78%;
+height:78%;
+z-index:3;
 
-  setTimeout(()=>{
-    tv.classList.remove("startup");
-    tv.classList.add("static-on");
+background: repeating-linear-gradient(
+to bottom,
+rgba(0,0,0,.25) 0px,
+transparent 3px
+);
+}
 
-    staticAudio.volume = 0.6;
-    staticAudio.play().catch(()=>{});
-  },1200);
-};
+/* FRAME */
+.tv-frame{
+width:100%;
+z-index:4;
+position:relative;
+}
 
 /* PLAY BUTTON */
-btn.onclick = async ()=>{
+.play-btn{
+position:absolute;
+left:8%;
+top:8%;
+width:78%;
+height:78%;
+z-index:5;
+border:none;
+background:none;
+cursor:pointer;
+}
 
-  if(!videoMode){
-    videoMode = true;
+.play-btn::before{
+content:"";
+position:absolute;
+inset:0;
+margin:auto;
+width:70px;
+height:70px;
+border-radius:50%;
+background:rgba(0,0,0,.6);
+}
 
-    tv.classList.remove("static-on");
-    tv.classList.add("video-on");
-
-    staticAudio.pause();
-
-    await video.play();
-  }
-  else{
-    if(video.paused){
-      video.play();
-    }else{
-      video.pause();
-    }
-  }
-};
-</script>
-
-</body>
-</html>
+.play-btn::after{
+content:"";
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-40%,-50%);
+border-left:25px solid white;
+border-top:15px solid transparent;
+border-bottom:15px solid transparent;
+}
