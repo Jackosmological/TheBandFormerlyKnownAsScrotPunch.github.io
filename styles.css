@@ -17,7 +17,9 @@ body{
   padding: 12px;
 }
 
-/* TV wrapper */
+/* =========================
+   TV WRAPPER
+========================= */
 .tv{
   position: relative;
   display: inline-block;
@@ -30,11 +32,11 @@ body{
   height: auto;
   display: block;
   position: relative;
-  z-index: 2;
+  z-index: 4;
   pointer-events: none;
 }
 
-/* Video inside TV */
+/* Video inside TV screen */
 .tv-video{
   position: absolute;
   z-index: 1;
@@ -46,18 +48,113 @@ body{
 
   object-fit: cover;
   border: none;
+
+  /* CRT-ish softness */
+  filter: contrast(1.05) saturate(1.05);
+  transform: translateZ(0);
 }
 
-/* ===== CUSTOM PLAY BUTTON ===== */
+/* =========================
+   CRT SCANLINES + VIGNETTE
+   (overlay sits on top of video, under TV frame)
+========================= */
+.tv::before{
+  content:"";
+  position: absolute;
+  z-index: 2;
 
-.play-btn{
+  left: 8.5%;
+  top: 8%;
+  width: 78%;
+  height: 78%;
+
+  /* scanlines + slight tint + vignette */
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.12) 0px,
+      rgba(0,0,0,0.12) 1px,
+      rgba(0,0,0,0.00) 3px,
+      rgba(0,0,0,0.00) 4px
+    ),
+    radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.25) 70%, rgba(0,0,0,0.45) 100%);
+
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+/* subtle animated "rolling" scanline shimmer */
+.tv::after{
+  content:"";
   position: absolute;
   z-index: 3;
 
   left: 8.5%;
   top: 8%;
   width: 78%;
-  height:108%;
+  height: 78%;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.00),
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.00)
+  );
+  opacity: 0.12;
+  transform: translateY(-120%);
+  pointer-events: none;
+}
+
+.tv.tv-playing::after{
+  animation: crt-roll 3.2s linear infinite;
+}
+
+@keyframes crt-roll{
+  0%   { transform: translateY(-120%); }
+  100% { transform: translateY(120%); }
+}
+
+/* =========================
+   STARTUP FLICKER
+========================= */
+.tv.tv-startup .tv-video{
+  animation: startup-flicker 900ms ease-out 1;
+}
+
+.tv.tv-startup::before{
+  animation: startup-scan 900ms ease-out 1;
+}
+
+@keyframes startup-flicker{
+  0%   { opacity: 0;   filter: brightness(0.2) contrast(1.3) saturate(1.2); transform: scaleY(0.02); }
+  10%  { opacity: 1;   transform: scaleY(0.15); }
+  18%  { opacity: 0.2; transform: scaleY(0.06); }
+  28%  { opacity: 1;   transform: scaleY(1.00); }
+  40%  { opacity: 0.5; filter: brightness(1.6) contrast(1.2) saturate(1.1); }
+  55%  { opacity: 1;   filter: brightness(1.0) contrast(1.05) saturate(1.05); }
+  75%  { opacity: 0.85; }
+  100% { opacity: 1;   }
+}
+
+@keyframes startup-scan{
+  0%   { opacity: 0.0; }
+  20%  { opacity: 0.9; }
+  45%  { opacity: 0.4; }
+  100% { opacity: 0.75; }
+}
+
+/* =========================
+   CUSTOM PLAY BUTTON
+========================= */
+.play-btn{
+  position: absolute;
+  z-index: 5;
+
+  left: 8.5%;
+  top: 8%;
+  width: 78%;
+  height: 78%;
 
   background: transparent;
   border: none;
@@ -87,4 +184,3 @@ body{
   border-top: 16px solid transparent;
   border-bottom: 16px solid transparent;
 }
-
