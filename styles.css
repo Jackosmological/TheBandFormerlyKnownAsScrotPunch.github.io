@@ -52,3 +52,9 @@ body{
   border: none;
   box-sizing: border-box;
 }
+.band-video,
+.video-box,
+.video-box video{
+  border: none !important;
+  outline: none !important;
+}
