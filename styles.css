@@ -19,29 +19,38 @@ body{
 }
 
 /* Video: thick black border + controlled size */
-.video-stack{
+.tv{
   position: relative;
-  display: inline-block;   /* keeps overlay sized to video box */
+  display: inline-block;
+  width: min(700px, 100%);   /* size of the whole TV on the page */
 }
 
-/* your existing video style is fine; keep border here if you want */
-.band-video{
-  width: 320px;
-  max-width: 100%;
-  height: auto;
-
-  border: 14px solid #000;
-  box-sizing: border-box;
-  display: block;
-}
-
-/* the PNG that sits on top */
-.video-overlay{
-  position: absolute;
-  inset: 0;                /* covers the whole video area */
+/* the TV frame image */
+.tv-frame{
   width: 100%;
-  height: 100%;
-  object-fit: contain;     /* show the whole overlay image */
-  pointer-events: none;    /* clicks go through to the video controls */
+  height: auto;
+  display: block;
+  position: relative;
+  z-index: 2;
+  pointer-events: none; /* clicks pass through */
+}
+
+/* the video, positioned to sit behind the TV “screen” opening */
+.tv-video{
+  position: absolute;
+  z-index: 1;
+
+  /* 🔧 TUNING KNOBS (adjust these until it perfectly matches the TV glass) */
+  left: 8.5%;
+  top: 12%;
+  width: 69%;
+  height: 63%;
+
+  /* fill the screen opening without black bars */
+  object-fit: cover;
+
+  /* keep your border OFF here; the TV bezel is the border now */
+  border: none;
+  box-sizing: border-box;
 }
 }
