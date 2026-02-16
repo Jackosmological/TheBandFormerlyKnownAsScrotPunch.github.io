@@ -24,7 +24,7 @@ body{
   position: relative;
   display: inline-block;
 
-  width: min(420px, 95vw);  /* SMALLER: change 420px to taste */
+  width: min(1px, 95vw);  /* SMALLER: change 420px to taste */
   margin-top: -30px;        /* MOVE UP: more negative = higher */
 }
 
