@@ -73,6 +73,24 @@ opacity:0;
 transition:opacity 2s ease;
 }
 
+/* IDLE VIDEO (idle.mp4) overlays at 50% opacity */
+.tv-idle-video{
+position:absolute;
+left:8%;
+top:8%;
+width:78%;
+height:78%;
+object-fit:cover;
+z-index:3;              /* above static */
+opacity:0;
+pointer-events:none;
+transition:opacity 2s ease;
+}
+
+.idle-on .tv-idle-video{
+opacity:.5;
+}
+
 /* SCANLINES */
 .tv::before{
 content:"";
@@ -81,7 +99,7 @@ left:8%;
 top:8%;
 width:78%;
 height:78%;
-z-index:3;
+z-index:4; /* bumped up to stay above idle video */
 background: repeating-linear-gradient(
 to bottom,
 rgba(0,0,0,.25) 0px,
@@ -93,7 +111,7 @@ pointer-events:none;
 /* FRAME */
 .tv-frame{
 width:100%;
-z-index:4;
+z-index:5; /* bumped */
 position:relative;
 pointer-events:none;
 }
@@ -105,7 +123,7 @@ left:50%;
 top:13.8%;
 width:78%;
 height:78%;
-z-index:5;
+z-index:6; /* bumped */
 border:none;
 background:none;
 cursor:pointer;
