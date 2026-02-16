@@ -1,3 +1,4 @@
+<!-- index.html — FULL copy/paste -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,21 +12,21 @@
 
 <div class="tv" id="tv">
 
-  <img class="tv-screen" src="screen.png">
+  <img class="tv-screen" src="screen.png" alt="">
 
   <div class="tv-static"></div>
 
-  <video class="tv-video" id="video" loop>
+  <video class="tv-video" id="video" loop playsinline preload="metadata">
     <source src="band.mp4" type="video/mp4">
   </video>
 
-  <button class="play-btn" id="playBtn"></button>
+  <button class="play-btn" id="playBtn" aria-label="Play/Pause"></button>
 
-  <img class="tv-frame" src="tv.png">
+  <img class="tv-frame" src="tv.png" alt="">
 
 </div>
 
-<audio id="staticAudio" loop>
+<audio id="staticAudio" loop preload="auto">
   <source src="static.mp3" type="audio/mpeg">
 </audio>
 
@@ -37,38 +38,37 @@ const staticAudio = document.getElementById("staticAudio");
 
 let videoMode = false;
 
-/* STARTUP */
-window.onload = ()=>{
-  tv.classList.add("startup");
+/* Start static visuals immediately */
+tv.classList.add("static-on");
 
-  setTimeout(()=>{
-    tv.classList.remove("startup");
-    tv.classList.add("static-on");
+/* Try to start static audio as soon as possible.
+   NOTE: many browsers block autoplay audio until user interacts. */
+function startStaticAudio(){
+  staticAudio.volume = 0.6;
+  staticAudio.play().catch(()=>{ /* autoplay may be blocked */ });
+}
+window.addEventListener("load", startStaticAudio);
 
-    staticAudio.volume = 0.6;
-    staticAudio.play().catch(()=>{});
-  },1200);
-};
-
-/* PLAY BUTTON */
+/* Button: first click starts video (and stops static), later clicks pause/play video */
 btn.onclick = async ()=>{
-
   if(!videoMode){
     videoMode = true;
 
+    // stop static
     tv.classList.remove("static-on");
     tv.classList.add("video-on");
-
     staticAudio.pause();
+    staticAudio.currentTime = 0;
 
-    await video.play();
+    try{ await video.play(); }catch(e){}
+    return;
   }
-  else{
-    if(video.paused){
-      video.play();
-    }else{
-      video.pause();
-    }
+
+  // toggle pause/play
+  if(video.paused){
+    try{ await video.play(); }catch(e){}
+  }else{
+    video.pause();
   }
 };
 </script>
