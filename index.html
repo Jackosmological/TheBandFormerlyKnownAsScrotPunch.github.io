@@ -13,8 +13,8 @@
 
   <img class="tv-screen" src="screen.png" alt="">
 
-  <!-- NEW: Static video layer -->
-  <video class="tv-static-video" id="staticVideo" loop playsinline muted preload="metadata">
+  <!-- Static video layer -->
+  <video class="tv-static-video" id="staticVideo" loop playsinline muted preload="auto">
     <source src="static.mp4" type="video/mp4">
   </video>
 
@@ -48,7 +48,6 @@ const video = document.getElementById("video");
 const videoSource = video.querySelector("source");
 
 const staticVideo = document.getElementById("staticVideo");
-const staticVideoSource = staticVideo.querySelector("source");
 
 const btn = document.getElementById("playBtn");
 const staticAudio = document.getElementById("staticAudio");
@@ -56,9 +55,14 @@ const staticAudio = document.getElementById("staticAudio");
 let videoMode = false;
 let switching = false;
 
+/* Timing */
+const DELAY_BEFORE_NEW_VIDEO_MS = 1500;  // keep your 1.5s delay
+const QUICK_FADE_MS = 400;              // fade to static (visual/audio) in ~0.4s
+const SLOW_CROSSFADE_MS = 2000;         // static out + video in completes in 2s
+
 /* ---------- audio fade helper ---------- */
 let fadeRAF = null;
-function fadeAudioTo(target, ms=300){
+function fadeAudioTo(target, ms){
   cancelAnimationFrame(fadeRAF);
   const startVol = Number.isFinite(staticAudio.volume) ? staticAudio.volume : 0;
   const start = performance.now();
@@ -71,69 +75,74 @@ function fadeAudioTo(target, ms=300){
   fadeRAF = requestAnimationFrame(tick);
 }
 
+/* ---------- guarantee audio starts on first user gesture ---------- */
+let audioUnlocked = false;
+function unlockAudio(){
+  if(audioUnlocked) return;
+  audioUnlocked = true;
+  // Try to start static audio silently (so later fades work reliably)
+  staticAudio.volume = 0;
+  staticAudio.play().then(()=> {
+    // leave it paused unless we’re showing static, to match your vibe
+    staticAudio.pause();
+    staticAudio.currentTime = 0;
+  }).catch(()=>{});
+}
+window.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
+
 /* ---------- static layer controls ---------- */
-function startStaticLayerQuick(){
+async function startStaticLayerQuick(){
   tv.classList.add("static-on");
   tv.classList.remove("static-out");
 
-  // start static video
-  try{ staticVideo.play(); }catch(e){}
+  // start static video (muted -> should autoplay without gesture)
+  try{
+    await staticVideo.play();
+  }catch(e){}
 
-  // start / fade in static audio (may be blocked until user gesture)
+  // start / fade in static audio (gesture usually available on button click)
   if(staticAudio.paused){
+    staticAudio.currentTime = 0;
     staticAudio.volume = 0;
     staticAudio.play().catch(()=>{});
   }
-  fadeAudioTo(0.6, 180);
+  fadeAudioTo(0.6, QUICK_FADE_MS);
 }
 
 function fadeOutStaticLayerSlow(){
   tv.classList.add("static-out");
-  // fade audio down slowly too
-  fadeAudioTo(0, 1600);
+  fadeAudioTo(0, SLOW_CROSSFADE_MS);
 
-  // after fade finishes, fully stop the layer + clean classes
   setTimeout(() => {
     tv.classList.remove("static-on");
     tv.classList.remove("static-out");
     staticVideo.pause();
     staticVideo.currentTime = 0;
 
-    // pause audio if effectively silent
     if(staticAudio.volume <= 0.02){
       staticAudio.pause();
       staticAudio.currentTime = 0;
     }
-  }, 1700);
+  }, SLOW_CROSSFADE_MS + 50);
 }
-
-/* ---------- initial: show static immediately ---------- */
-tv.classList.add("static-on");
-window.addEventListener("load", () => {
-  // Try to start static video + audio (audio may be blocked)
-  try{ staticVideo.play(); }catch(e){}
-  staticAudio.volume = 0.6;
-  staticAudio.play().catch(()=>{});
-});
 
 /* ---------- core switch logic ---------- */
 async function switchToVideo(src){
   if(switching) return;
   switching = true;
 
-  // Ensure we’re in "video mode" (same transition you had)
+  // Ensure we’re in video mode
   if(!videoMode){
     videoMode = true;
     tv.classList.add("video-on");
   }
 
-  // 1) QUICK: fade out current video + fade in static
-  tv.classList.add("video-fadeout");     // quick fade to black
-  startStaticLayerQuick();              // quick static in
+  // 1) Fade current video out + bring static in (visual/audio)
+  tv.classList.add("video-fadeout");
+  await startStaticLayerQuick();
 
   // 2) Wait 1.5s before starting the new clip
   setTimeout(async () => {
-    // Set new source if needed
     const current = videoSource.getAttribute("src") || "";
     if(current !== src){
       video.pause();
@@ -141,29 +150,28 @@ async function switchToVideo(src){
       video.load();
     }
 
-    // Start playing (may require user gesture; buttons count as a gesture)
     try{ await video.play(); }catch(e){}
 
-    // 3) Start the slow crossfade: static out, video in
-    tv.classList.remove("video-fadeout");  // video returns to opacity 1 via CSS slow transition
+    // 3) Begin slow crossfade: static out (2s) while video fades in (2s)
+    tv.classList.remove("video-fadeout");
     fadeOutStaticLayerSlow();
 
-    // Allow a bit of time for the crossfade to finish before unlocking
+    // unlock after crossfade
     setTimeout(() => {
       switching = false;
-    }, 1700);
-  }, 1500);
+    }, SLOW_CROSSFADE_MS + 80);
+
+  }, DELAY_BEFORE_NEW_VIDEO_MS);
 }
 
-/* ---------- play button behavior (kept, but now uses the same switch logic on first click) ---------- */
+/* ---------- play button behavior ---------- */
 btn.onclick = async ()=>{
   if(!videoMode){
-    // First click: behave like starting the default video through the same pipeline
     await switchToVideo(videoSource.getAttribute("src") || "band.mp4");
     return;
   }
 
-  // toggle pause/play (no static transition here, per your original behavior)
+  // toggle pause/play (no static transition here)
   if(video.paused){
     try{ await video.play(); }catch(e){}
   }else{
