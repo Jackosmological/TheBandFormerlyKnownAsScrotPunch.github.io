@@ -25,7 +25,7 @@ body{
   display: inline-block;
 
   width: min(420px, 95vw);  /* SMALLER: change 420px to taste */
-  margin-top: -30px;        /* MOVE UP: more negative = higher */
+  margin-top: -28px;        /* MOVE UP: more negative = higher */
 }
 
 /* the TV frame image */
@@ -45,7 +45,7 @@ body{
 
   left: 8.5%;
   top: 16%;
-  width: 75%;
+  width: 73%;
   height: 63%;
 
   object-fit: cover;
