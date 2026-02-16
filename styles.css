@@ -30,7 +30,7 @@ body{
 
 /* the TV frame image */
 .tv-frame{
-  width: 95%;
+  width: 85%;
   height: auto;
   display: block;
   position: relative;
