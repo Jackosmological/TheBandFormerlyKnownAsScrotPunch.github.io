@@ -160,36 +160,36 @@ transform:scale(1.05);
 }
 
 /* ================================
-   NEW POSITIONS/SIZES (match TV buttons)
+   UPDATED POSITIONS/SIZES (fit the TV art better)
    ================================ */
 
-/* Small vertical buttons (1–5) on the right panel */
+/* Small vertical buttons (1–5) — align to the tiny button column */
 #v1,#v2,#v3,#v4,#v5{
-width:18px;
-height:18px;
+width:16px;
+height:16px;
 border-radius:999px;
-font-size:10px;
+font-size:9px;
 line-height:1;
 padding:0;
 transform:translate(-50%,-50%);
 }
 
-/* These percentages are tuned to your screenshot; adjust as needed */
-#v1{ left:76.6%; top:56.2%; }
-#v2{ left:76.6%; top:61.5%; }
-#v3{ left:76.6%; top:66.8%; }
-#v4{ left:76.6%; top:72.1%; }
-#v5{ left:76.6%; top:77.4%; }
+/* Tuned to your latest screenshot; tweak left/top by tiny amounts if needed */
+#v1{ left:79.2%; top:56.0%; }
+#v2{ left:79.2%; top:61.0%; }
+#v3{ left:79.2%; top:66.0%; }
+#v4{ left:79.2%; top:71.0%; }
+#v5{ left:79.2%; top:76.0%; }
 
-/* Default button on the large circular knob (bottom right) */
+/* Default button — match the large circular knob size and center it */
 #vDefault{
-width:62px;
-height:62px;
+width:56px;
+height:56px;
 border-radius:999px;
 font-size:10px;
 line-height:1.05;
 padding:0 6px;
 transform:translate(-50%,-50%);
-left:83.0%;
-top:73.6%;
+left:87.2%;
+top:76.8%;
 }
