@@ -30,8 +30,8 @@
      FREEK BUTTON POSITION
      (inside TV rig, percentages of TV box)
      ===================== */
-  --freek-btn-left: 100%;
-  --freek-btn-top: 86%;
+  --freek-btn-left: 130%;
+  --freek-btn-top: 90%;
 
   /* Freek image size */
   --freek-img-width: 220px;
