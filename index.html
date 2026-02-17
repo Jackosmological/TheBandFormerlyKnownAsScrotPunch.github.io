@@ -1,4 +1,4 @@
-<!-- index.html — FULL copy/paste (unchanged) -->
+<!-- index.html — FULL copy/paste -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,48 +10,51 @@
 
 <body>
 
+  <!-- WIRE (separate layer: above background, below everything else) -->
+  <img class="wire" src="wire.png" alt="">
+
   <div class="gif-column">
-  <img src="font1.gif" alt="">
-  <img src="font2.gif" alt="">
-  <img src="font3.gif" alt="">
-</div>
+    <img src="font1.gif" alt="">
+    <img src="font2.gif" alt="">
+    <img src="font3.gif" alt="">
+  </div>
 
-<div class="tv" id="tv">
+  <div class="tv" id="tv">
 
-  <img class="tv-screen" src="screen.png" alt="">
+    <img class="tv-screen" src="screen.png" alt="">
 
-  <!-- Static video layer -->
-  <video class="tv-static-video" id="staticVideo" loop playsinline muted preload="auto">
-    <source src="static.mp4" type="video/mp4">
-  </video>
+    <!-- Static video layer -->
+    <video class="tv-static-video" id="staticVideo" loop playsinline muted preload="auto">
+      <source src="static.mp4" type="video/mp4">
+    </video>
 
-  <!-- Idle overlay video (50% opacity, quiet) -->
-  <video class="tv-idle-video" id="idleVideo" loop playsinline preload="auto">
-    <source src="idle.mp4" type="video/mp4">
-  </video>
+    <!-- Idle overlay video (50% opacity, quiet) -->
+    <video class="tv-idle-video" id="idleVideo" loop playsinline preload="auto">
+      <source src="idle.mp4" type="video/mp4">
+    </video>
 
-  <video class="tv-video" id="video" loop playsinline preload="metadata">
-    <source src="band.mp4" type="video/mp4">
-  </video>
+    <video class="tv-video" id="video" loop playsinline preload="metadata">
+      <source src="band.mp4" type="video/mp4">
+    </video>
 
-  <button class="play-btn" id="playBtn" aria-label="Play/Pause"></button>
+    <button class="play-btn" id="playBtn" aria-label="Play/Pause"></button>
 
-  <img class="tv-frame" src="tv.png" alt="">
+    <img class="tv-frame" src="tv.png" alt="">
 
-  <!-- Invisible click targets -->
-  <button class="vid-btn" id="v1" data-src="band1.mp4" aria-label="Play band 1">1</button>
-  <button class="vid-btn" id="v2" data-src="band2.mp4" aria-label="Play band 2">2</button>
-  <button class="vid-btn" id="v3" data-src="band3.mp4" aria-label="Play band 3">3</button>
-  <button class="vid-btn" id="v4" data-src="band4.mp4" aria-label="Play band 4">4</button>
-  <button class="vid-btn" id="v5" data-src="band5.mp4" aria-label="Play band 5">5</button>
+    <!-- Invisible click targets -->
+    <button class="vid-btn" id="v1" data-src="band1.mp4" aria-label="Play band 1">1</button>
+    <button class="vid-btn" id="v2" data-src="band2.mp4" aria-label="Play band 2">2</button>
+    <button class="vid-btn" id="v3" data-src="band3.mp4" aria-label="Play band 3">3</button>
+    <button class="vid-btn" id="v4" data-src="band4.mp4" aria-label="Play band 4">4</button>
+    <button class="vid-btn" id="v5" data-src="band5.mp4" aria-label="Play band 5">5</button>
 
-  <button class="vid-btn" id="vDefault" data-src="band.mp4" aria-label="Play default video">DEFAULT</button>
+    <button class="vid-btn" id="vDefault" data-src="band.mp4" aria-label="Play default video">DEFAULT</button>
 
-</div>
+  </div>
 
-<audio id="staticAudio" loop preload="auto">
-  <source src="static.mp3" type="audio/mpeg">
-</audio>
+  <audio id="staticAudio" loop preload="auto">
+    <source src="static.mp3" type="audio/mpeg">
+  </audio>
 
 <script>
 const tv = document.getElementById("tv");
