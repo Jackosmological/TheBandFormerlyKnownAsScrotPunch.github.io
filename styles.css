@@ -234,4 +234,27 @@ body{
     --tv-width: 360px;
   }
 }
+/* =====================
+   GIF COLUMN (VERTICAL)
+   ===================== */
+
+.gif-column{
+  position:absolute;
+
+  /* 🔧 MOVE THE WHOLE COLUMN HERE */
+  left: 8vw;
+  top: 28vh;
+
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+
+  z-index:2;
+}
+
+.gif-column img{
+  width:140px;     /* 🔧 GIF size */
+  height:auto;
+  display:block;
+}
 
