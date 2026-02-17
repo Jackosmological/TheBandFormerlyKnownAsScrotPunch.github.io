@@ -20,9 +20,19 @@
      WIRE PNG CONTROLS
      ===================== */
   --wire-left: 50vw;
-  --wire-top: 46.5vh;
-  --wire-width: 300px;
+  --wire-top: 50vh;
+  --wire-width: 900px;
   --wire-rot: 0deg;
+
+  /* =====================
+     FREEK BUTTON POSITION
+     (inside TV rig, percentages of TV box)
+     ===================== */
+  --freek-btn-left: 16%;
+  --freek-btn-top: 86%;
+
+  /* Freek image size */
+  --freek-img-width: 220px;
 }
 
 html, body{
@@ -254,6 +264,60 @@ body{
   top:calc(76.3% - 24px);
 }
 
+/* =====================
+   FREEK BUTTON (VISIBLE RED)
+   ===================== */
+.freek-btn{
+  position:absolute;
+  left: var(--freek-btn-left);
+  top: var(--freek-btn-top);
+  transform: translate(-50%, -50%);
+  z-index:20;
+
+  width:20px;
+  height:20px;
+  border-radius:999px;
+
+  background:red;
+  border:2px solid rgba(255,255,255,.9);
+  box-shadow:0 0 10px rgba(255,0,0,.6);
+  cursor:pointer;
+}
+
+/* =====================
+   FULLSCREEN FREEK OVERLAY
+   ===================== */
+.freek-overlay{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 4s ease; /* very slow fade in/out */
+}
+
+.freek-on{ opacity:1; }
+
+.freek-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* Freek images: JS sets their left/top; we keep them centered on that point */
+.freek-img{
+  position:absolute;
+  width: var(--freek-img-width);
+  height:auto;
+  opacity:.5;              /* always 50% */
+  transform:translate(-50%,-50%);
+  will-change: left, top;
+  user-select:none;
+  pointer-events:none;
+}
+
 /* Mobile: keep it fitting */
 @media (max-width: 520px){
   :root{
@@ -265,6 +329,8 @@ body{
     --wire-width: 650px;
     --wire-left: 50vw;
     --wire-top: 50vh;
+
+    --freek-img-width: 140px;
   }
 }
 
