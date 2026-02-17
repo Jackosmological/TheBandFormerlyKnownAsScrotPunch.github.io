@@ -26,14 +26,14 @@
      TITLE PNG CONTROLS
      ===================== */
   /* titleA.png */
-  --titleA-left: 62vw;
-  --titleA-top: 18vh;
+  --titleA-left: 82vw;
+  --titleA-top: 8vh;
   --titleA-width: 520px;
   --titleA-rot: 0deg;
 
   /* titleB.png */
-  --titleB-left: 68vw;
-  --titleB-top: 30vh;
+  --titleB-left: 88vw;
+  --titleB-top: 10vh;
   --titleB-width: 420px;
   --titleB-rot: 0deg;
 
