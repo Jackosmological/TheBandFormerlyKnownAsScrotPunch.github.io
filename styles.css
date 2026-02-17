@@ -30,12 +30,12 @@
      ===================== */
   /* titleA.png */
   --titleA-left: 82vw;
-  --titleA-top: 8vh;
-  --titleA-width: 520px;
+  --titleA-top: 7vh;
+  --titleA-width: 490px;
   --titleA-rot: 0deg;
 
   /* titleB.png */
-  --titleB-left: 85vw;
+  --titleB-left: 86vw;
   --titleB-top: 13vh;
   --titleB-width: 360px;
   --titleB-rot: 0deg;
