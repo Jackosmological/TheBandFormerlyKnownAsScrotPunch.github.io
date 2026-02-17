@@ -8,6 +8,9 @@
   /* Resize the whole TV rig here */
   --tv-width: 560px;
 
+  /* ✅ Scale the entire TV rig (TV + all buttons/videos inside) */
+  --tv-scale: 0.95;
+
   /* Screen rectangle inside tv.png */
   --sx: 8%;
   --sy: 8%;
@@ -85,7 +88,7 @@ body{
   position:absolute;
   height:auto;
   transform: translate(-50%, -50%);
-  z-index:3;              /* above gifs, below TV (TV is z-index:5) */
+  z-index:3;              /* above gifs, below TV */
   pointer-events:none;
   user-select:none;
   -webkit-user-drag:none;
@@ -111,7 +114,10 @@ body{
   left: var(--tv-left);
   top: var(--tv-top);
 
-  transform: translate(-50%, -50%) translateY(-7%);
+  /* centered on anchor, moved up by 7% of TV height, and scaled down 5% */
+  transform: translate(-50%, -50%) translateY(-7%) scale(var(--tv-scale));
+  transform-origin: center center;
+
   width: var(--tv-width);
   z-index:5;
   pointer-events:auto;
@@ -347,6 +353,9 @@ body{
     --tv-left: 50vw;
     --tv-top: 42vh;
     --tv-width: 360px;
+
+    /* keep same 5% shrink on mobile too */
+    --tv-scale: 0.95;
 
     --wire-width: 655px;
     --wire-left: 50vw;
