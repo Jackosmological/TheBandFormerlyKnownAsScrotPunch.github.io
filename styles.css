@@ -242,8 +242,8 @@ body{
   position:absolute;
 
   /* 🔧 MOVE THE WHOLE COLUMN HERE */
-  left: 70vw;
-  top: 50vh;
+  left: 75vw;
+  top: 55vh;
 
   display:flex;
   flex-direction:column;
