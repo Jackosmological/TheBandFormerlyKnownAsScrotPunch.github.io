@@ -328,7 +328,7 @@ body{
     --tv-width: 360px;
 
     /* optional: scale wire down on mobile */
-    --wire-width: 650px;
+    --wire-width: 655px;
     --wire-left: 50vw;
     --wire-top: 50vh;
 
