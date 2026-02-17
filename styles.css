@@ -253,7 +253,7 @@ body{
 }
 
 .gif-column img{
-  width:140px;     /* 🔧 GIF size */
+  width:300px;     /* 🔧 GIF size */
   height:auto;
   display:block;
 }
