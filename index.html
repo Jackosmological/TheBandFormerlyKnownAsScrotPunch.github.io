@@ -11,7 +11,19 @@
 <body>
 
   <!-- WIRE (separate layer: above background, below everything else) -->
-  <img class="wire" src="wire1.png" alt="">
+  <img class="wire" src="wire.png" alt="">
+
+  <!-- FULLSCREEN FREEK OVERLAY -->
+  <div class="freek-overlay" id="freekOverlay" aria-hidden="true">
+    <video class="freek-video" id="freekVideo" loop playsinline muted preload="auto">
+      <source src="static.mp4" type="video/mp4">
+    </video>
+
+    <img class="freek-img" id="freek1" src="freek1.png" alt="">
+    <img class="freek-img" id="freek2" src="freek2.png" alt="">
+    <img class="freek-img" id="freek3" src="freek3.png" alt="">
+    <img class="freek-img" id="freek4" src="freek4.png" alt="">
+  </div>
 
   <div class="gif-column">
     <img src="font1.gif" alt="">
@@ -23,7 +35,7 @@
 
     <img class="tv-screen" src="screen.png" alt="">
 
-    <!-- Static video layer -->
+    <!-- Static video layer (TV transition static) -->
     <video class="tv-static-video" id="staticVideo" loop playsinline muted preload="auto">
       <source src="static.mp4" type="video/mp4">
     </video>
@@ -50,9 +62,18 @@
 
     <button class="vid-btn" id="vDefault" data-src="band.mp4" aria-label="Play default video">DEFAULT</button>
 
+    <!-- VISIBLE red button for freek event -->
+    <button class="freek-btn" id="freekBtn" aria-label="Freek static event"></button>
+
   </div>
 
+  <!-- TV transition static audio (unchanged) -->
   <audio id="staticAudio" loop preload="auto">
+    <source src="static.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- FREEK overlay audio (separate so it doesn't fight the TV transitions) -->
+  <audio id="freekAudio" loop preload="auto">
     <source src="static.mp3" type="audio/mpeg">
   </audio>
 
@@ -81,7 +102,7 @@ const SLOW_CROSSFADE_MS = 2000;
 const IDLE_AFTER_MS = 30000;
 let idleTimer = null;
 
-/* ---------- audio fade helper ---------- */
+/* ---------- audio fade helper (TV static) ---------- */
 let fadeRAF = null;
 function fadeAudioTo(target, ms){
   cancelAnimationFrame(fadeRAF);
@@ -96,16 +117,40 @@ function fadeAudioTo(target, ms){
   fadeRAF = requestAnimationFrame(tick);
 }
 
+/* ---------- audio fade helper (FREEK audio) ---------- */
+let freekFadeRAF = null;
+const freekAudio = document.getElementById("freekAudio");
+function fadeFreekAudioTo(target, ms){
+  cancelAnimationFrame(freekFadeRAF);
+  const startVol = Number.isFinite(freekAudio.volume) ? freekAudio.volume : 0;
+  const start = performance.now();
+
+  function tick(t){
+    const p = Math.min(1, (t - start) / ms);
+    freekAudio.volume = startVol + (target - startVol) * p;
+    if(p < 1) freekFadeRAF = requestAnimationFrame(tick);
+  }
+  freekFadeRAF = requestAnimationFrame(tick);
+}
+
 /* ---------- guarantee audio starts on first user gesture ---------- */
 let audioUnlocked = false;
 function unlockAudio(){
   if(audioUnlocked) return;
   audioUnlocked = true;
 
+  // unlock TV static audio
   staticAudio.volume = 0;
   staticAudio.play().then(()=> {
     staticAudio.pause();
     staticAudio.currentTime = 0;
+  }).catch(()=>{});
+
+  // unlock freek audio
+  freekAudio.volume = 0;
+  freekAudio.play().then(()=> {
+    freekAudio.pause();
+    freekAudio.currentTime = 0;
   }).catch(()=>{});
 }
 window.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
@@ -252,6 +297,157 @@ document.querySelectorAll(".vid-btn").forEach(b => {
     const src = b.dataset.src;
     if(src) await switchToVideo(src);
   });
+});
+
+/* ==========================
+   FREEK OVERLAY EVENT + FLOATING PNGs
+   ========================== */
+const freekBtn = document.getElementById("freekBtn");
+const freekOverlay = document.getElementById("freekOverlay");
+const freekVideo = document.getElementById("freekVideo");
+const freekImgs = [
+  document.getElementById("freek1"),
+  document.getElementById("freek2"),
+  document.getElementById("freek3"),
+  document.getElementById("freek4"),
+];
+
+let freekOutTimer = null;
+let freekCleanupTimer = null;
+
+/* floating state */
+let floatRAF = null;
+let floatLastT = 0;
+let floatState = []; // {x,y,vx,vy,w,h}
+
+/* place + start drifting */
+function startFloating(){
+  cancelAnimationFrame(floatRAF);
+  floatLastT = performance.now();
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  floatState = freekImgs.map(img => {
+    const rect = img.getBoundingClientRect();
+    const w = rect.width || 200;
+    const h = rect.height || 200;
+
+    // start positions spread out
+    const x = Math.random() * (vw - w) + w/2;
+    const y = Math.random() * (vh - h) + h/2;
+
+    // slow velocities (px/sec)
+    const speed = 18 + Math.random() * 22; // 18–40
+    const ang = Math.random() * Math.PI * 2;
+    const vx = Math.cos(ang) * speed;
+    const vy = Math.sin(ang) * speed;
+
+    img.style.left = x + "px";
+    img.style.top  = y + "px";
+
+    return { x, y, vx, vy, w, h };
+  });
+
+  function step(t){
+    const dt = Math.min(0.05, (t - floatLastT) / 1000); // cap dt
+    floatLastT = t;
+
+    const vw2 = window.innerWidth;
+    const vh2 = window.innerHeight;
+
+    for(let i=0;i<floatState.length;i++){
+      const s = floatState[i];
+      const img = freekImgs[i];
+
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+
+      // boundaries (keep inside viewport)
+      const minX = s.w/2;
+      const maxX = vw2 - s.w/2;
+      const minY = s.h/2;
+      const maxY = vh2 - s.h/2;
+
+      if(s.x < minX){ s.x = minX; s.vx *= -1; }
+      if(s.x > maxX){ s.x = maxX; s.vx *= -1; }
+      if(s.y < minY){ s.y = minY; s.vy *= -1; }
+      if(s.y > maxY){ s.y = maxY; s.vy *= -1; }
+
+      img.style.left = s.x + "px";
+      img.style.top  = s.y + "px";
+    }
+
+    floatRAF = requestAnimationFrame(step);
+  }
+
+  floatRAF = requestAnimationFrame(step);
+}
+
+function stopFloating(){
+  cancelAnimationFrame(floatRAF);
+  floatRAF = null;
+}
+
+/* ==========================
+   FREEK EVENT
+   ========================== */
+let freekRunning = false;
+
+async function triggerFreek(){
+  resetIdleTimer();
+  exitIdleMode();
+
+  // restart cleanly if spam-clicked
+  clearTimeout(freekOutTimer);
+  clearTimeout(freekCleanupTimer);
+
+  freekRunning = true;
+
+  // video
+  try{ freekVideo.currentTime = 0; }catch(e){}
+  try{ await freekVideo.play(); }catch(e){}
+
+  // audio start + fade in
+  if(freekAudio.paused){
+    freekAudio.currentTime = 0;
+    freekAudio.volume = 0;
+    freekAudio.play().catch(()=>{});
+  }else{
+    freekAudio.volume = 0;
+  }
+
+  // fade overlay in
+  freekOverlay.classList.add("freek-on");
+  fadeFreekAudioTo(0.6, 4000);
+
+  // start floating PNGs (after images have layout)
+  requestAnimationFrame(() => startFloating());
+
+  // after 6 seconds, fade everything away
+  freekOutTimer = setTimeout(() => {
+    freekOverlay.classList.remove("freek-on");
+    fadeFreekAudioTo(0, 2500);
+    stopFloating();
+
+    // cleanup after fade-out
+    freekCleanupTimer = setTimeout(() => {
+      try{ freekVideo.pause(); }catch(e){}
+      freekVideo.currentTime = 0;
+
+      if(freekAudio.volume <= 0.02){
+        freekAudio.pause();
+        freekAudio.currentTime = 0;
+      }
+      freekRunning = false;
+    }, 2600);
+
+  }, 6000);
+}
+
+freekBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  triggerFreek();
 });
 
 /* Start the idle timer immediately */
