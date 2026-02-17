@@ -21,7 +21,7 @@
      ===================== */
   --wire-left: 50vw;
   --wire-top: 50vh;
-  --wire-width:0px;
+  --wire-width: 900px;
   --wire-rot: 0deg;
 }
 
@@ -292,4 +292,3 @@ body{
   height:auto;
   display:block;
 }
-
