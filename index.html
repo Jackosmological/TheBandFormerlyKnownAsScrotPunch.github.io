@@ -12,6 +12,10 @@
   <!-- WIRE -->
   <img class="wire" src="wi.png" alt="">
 
+  <!-- TITLES -->
+  <img class="titleA" src="titleA.png" alt="">
+  <img class="titleB" src="titleB.png" alt="">
+
   <!-- FULLSCREEN FREEK OVERLAY -->
   <div class="freek-overlay" id="freekOverlay" aria-hidden="true">
     <video class="freek-video" id="freekVideo" loop playsinline muted preload="auto">
@@ -71,7 +75,6 @@
   </audio>
 
 <script>
-/* IMPORTANT: bind after DOM exists */
 document.addEventListener("DOMContentLoaded", () => {
 
   const tv = document.getElementById("tv");
@@ -89,16 +92,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let switching = false;
   let idleActive = false;
 
-  /* Timing */
   const DELAY_BEFORE_NEW_VIDEO_MS = 1500;
   const QUICK_FADE_MS = 400;
   const SLOW_CROSSFADE_MS = 2000;
 
-  /* Idle */
   const IDLE_AFTER_MS = 30000;
   let idleTimer = null;
 
-  /* ---------- audio fade helper (TV static) ---------- */
   let fadeRAF = null;
   function fadeAudioTo(target, ms){
     cancelAnimationFrame(fadeRAF);
@@ -113,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
     fadeRAF = requestAnimationFrame(tick);
   }
 
-  /* ---------- audio fade helper (FREEK audio) ---------- */
   const freekAudio = document.getElementById("freekAudio");
   let freekFadeRAF = null;
   function fadeFreekAudioTo(target, ms){
@@ -129,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
     freekFadeRAF = requestAnimationFrame(tick);
   }
 
-  /* ---------- guarantee audio starts on first user gesture ---------- */
   let audioUnlocked = false;
   function unlockAudio(){
     if(audioUnlocked) return;
@@ -149,18 +147,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   window.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
 
-  /* ---------- idle timer helpers ---------- */
   function resetIdleTimer(){
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => {
-      enterIdleMode();
-    }, IDLE_AFTER_MS);
+    idleTimer = setTimeout(() => enterIdleMode(), IDLE_AFTER_MS);
   }
   ["pointerdown","keydown","touchstart","mousemove"].forEach(evt => {
     window.addEventListener(evt, resetIdleTimer, { passive:true });
   });
 
-  /* ---------- static layer controls ---------- */
   async function startStaticLayerQuick(){
     tv.classList.add("static-on");
     tv.classList.remove("static-out");
@@ -192,7 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, SLOW_CROSSFADE_MS + 50);
   }
 
-  /* ---------- idle mode ---------- */
   async function enterIdleMode(){
     if(switching || idleActive) return;
 
@@ -201,9 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       tv.classList.add("video-fadeout");
       await startStaticLayerQuick();
-      setTimeout(() => {
-        try{ video.pause(); }catch(e){}
-      }, QUICK_FADE_MS + 50);
+      setTimeout(() => { try{ video.pause(); }catch(e){} }, QUICK_FADE_MS + 50);
     }
 
     tv.classList.remove("static-out");
@@ -222,14 +213,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function exitIdleMode(){
     if(!idleActive) return;
-
     idleActive = false;
     tv.classList.remove("idle-on");
     try{ idleVideo.pause(); }catch(e){}
     idleVideo.currentTime = 0;
   }
 
-  /* ---------- core switch logic ---------- */
   async function switchToVideo(src){
     if(switching) return;
     switching = true;
@@ -257,14 +246,10 @@ document.addEventListener("DOMContentLoaded", () => {
       tv.classList.remove("video-fadeout");
       fadeOutStaticLayerSlow();
 
-      setTimeout(() => {
-        switching = false;
-      }, SLOW_CROSSFADE_MS + 80);
-
+      setTimeout(() => { switching = false; }, SLOW_CROSSFADE_MS + 80);
     }, DELAY_BEFORE_NEW_VIDEO_MS);
   }
 
-  /* ---------- play button behavior ---------- */
   btn.onclick = async ()=>{
     resetIdleTimer();
     exitIdleMode();
@@ -281,7 +266,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  /* ---------- invisible buttons switch clips ---------- */
   document.querySelectorAll(".vid-btn").forEach(b => {
     b.addEventListener("click", async (e) => {
       e.stopPropagation();
@@ -291,9 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  /* ==========================
-     FREEK OVERLAY EVENT + FLOATING PNGs
-     ========================== */
   const freekBtn = document.getElementById("freekBtn");
   const freekOverlay = document.getElementById("freekOverlay");
   const freekVideo = document.getElementById("freekVideo");
