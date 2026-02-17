@@ -1,3 +1,4 @@
+<!-- index.html — FULL copy/paste -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -63,9 +64,9 @@ let switching = false;
 let idleActive = false;
 
 /* Timing */
-const DELAY_BEFORE_NEW_VIDEO_MS = 1500;  // keep your 1.5s delay
-const QUICK_FADE_MS = 400;              // fade to static (visual/audio) in ~0.4s
-const SLOW_CROSSFADE_MS = 2000;         // static out + video in completes in 2s
+const DELAY_BEFORE_NEW_VIDEO_MS = 1500;
+const QUICK_FADE_MS = 400;
+const SLOW_CROSSFADE_MS = 2000;
 
 /* Idle */
 const IDLE_AFTER_MS = 30000;
@@ -118,10 +119,8 @@ async function startStaticLayerQuick(){
   tv.classList.add("static-on");
   tv.classList.remove("static-out");
 
-  // start static video (muted -> should autoplay without gesture)
   try{ await staticVideo.play(); }catch(e){}
 
-  // start / fade in static audio
   if(staticAudio.paused){
     staticAudio.currentTime = 0;
     staticAudio.volume = 0;
@@ -151,25 +150,18 @@ function fadeOutStaticLayerSlow(){
 async function enterIdleMode(){
   if(switching || idleActive) return;
 
-  // Only do the “fade out current video” if we actually started video mode.
   if(!videoMode){
-    // already static-only; just ensure static stays on and idle overlay plays
     await startStaticLayerQuick();
   } else {
-    // Fade out whatever is currently playing (same style as switching)
     tv.classList.add("video-fadeout");
     await startStaticLayerQuick();
-
-    // After the quick fade completes, pause the main video
     setTimeout(() => {
       try{ video.pause(); }catch(e){}
     }, QUICK_FADE_MS + 50);
   }
 
-  // Static stays ON (no fade out)
   tv.classList.remove("static-out");
 
-  // Start idle overlay at 50% opacity + 20% volume, looped
   idleActive = true;
   tv.classList.add("idle-on");
 
@@ -179,9 +171,7 @@ async function enterIdleMode(){
   try{
     idleVideo.currentTime = 0;
     await idleVideo.play();
-  }catch(e){
-    // If autoplay is blocked for idle audio, it will still show the video when allowed.
-  }
+  }catch(e){}
 }
 
 function exitIdleMode(){
@@ -189,13 +179,8 @@ function exitIdleMode(){
 
   idleActive = false;
   tv.classList.remove("idle-on");
-
-  // stop idle overlay
   try{ idleVideo.pause(); }catch(e){}
   idleVideo.currentTime = 0;
-
-  // When leaving idle, we want the normal transition code to control fades.
-  // Keep static running if it already is; switchToVideo will manage it.
 }
 
 /* ---------- core switch logic ---------- */
@@ -203,20 +188,16 @@ async function switchToVideo(src){
   if(switching) return;
   switching = true;
 
-  // Any button press exits idle mode
   exitIdleMode();
 
-  // Ensure we’re in video mode
   if(!videoMode){
     videoMode = true;
     tv.classList.add("video-on");
   }
 
-  // 1) Fade current video out + bring static in (visual/audio)
   tv.classList.add("video-fadeout");
   await startStaticLayerQuick();
 
-  // 2) Wait 1.5s before starting the new clip
   setTimeout(async () => {
     const current = videoSource.getAttribute("src") || "";
     if(current !== src){
@@ -227,11 +208,9 @@ async function switchToVideo(src){
 
     try{ await video.play(); }catch(e){}
 
-    // 3) Begin slow crossfade: static out (2s) while video fades in (2s)
     tv.classList.remove("video-fadeout");
     fadeOutStaticLayerSlow();
 
-    // unlock after crossfade
     setTimeout(() => {
       switching = false;
     }, SLOW_CROSSFADE_MS + 80);
@@ -249,7 +228,6 @@ btn.onclick = async ()=>{
     return;
   }
 
-  // toggle pause/play (no static transition here)
   if(video.paused){
     try{ await video.play(); }catch(e){}
   }else{
