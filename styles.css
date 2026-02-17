@@ -24,8 +24,6 @@
   --wire-width: 308px;
   --wire-rot: 0deg;
 
-  
-
   /* =====================
      FREEK BUTTON POSITION
      (inside TV rig, percentages of TV box)
@@ -77,9 +75,10 @@ body{
   transform: translate(-50%, -50%) translateY(-7%);
 
   width: var(--tv-width);
-
-  /* ensure whole TV sits above wire/gifs */
   z-index:5;
+
+  /* ensure TV rig can receive clicks */
+  pointer-events:auto;
 }
 
 /* SCREEN */
@@ -105,9 +104,9 @@ body{
   object-fit:cover;
   opacity:0;
   z-index:1;
-  transition:opacity 2s ease; /* longer fade-in/out */
+  transition:opacity 2s ease;
+  pointer-events:none;
 }
-
 .video-on .tv-video{ opacity:1; }
 
 /* Fade out current video */
@@ -154,7 +153,6 @@ body{
   pointer-events:none;
   transition:opacity 2s ease;
 }
-
 .idle-on .tv-idle-video{ opacity:.5; }
 
 /* SCANLINES */
@@ -182,7 +180,7 @@ body{
   pointer-events:none;
 }
 
-/* PLAY BUTTON (stays visible always) */
+/* PLAY BUTTON */
 .play-btn{
   position:absolute;
   left:50%;
@@ -193,6 +191,7 @@ body{
   border:none;
   background:none;
   cursor:pointer;
+  pointer-events:auto;
 }
 
 .play-btn::before{
@@ -204,6 +203,7 @@ body{
   height:10px;
   border-radius:20%;
   background:rgba(0,0,0,.6);
+  pointer-events:none;
 }
 
 .play-btn::after{
@@ -215,12 +215,12 @@ body{
   border-left:9.7px solid white;
   border-top:6px solid transparent;
   border-bottom:6px solid transparent;
+  pointer-events:none;
 }
 
 /* ================================
    VIDEO SELECT BUTTONS (INVISIBLE)
    ================================ */
-
 .vid-btn{
   position:absolute;
   z-index:10;
@@ -233,6 +233,7 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+  pointer-events:auto;
 }
 
 /* Small vertical buttons (1–5) */
@@ -246,7 +247,7 @@ body{
   transform:translate(-50%,-50%);
 }
 
-/* Positions (your tuned offsets preserved) */
+/* Positions */
 #v1{ --l:79.8%; --t:55.6%; left:calc(var(--l) + 7px); top:calc(var(--t) - 18.2px); }
 #v2{ --l:79.8%; --t:60.6%; left:calc(var(--l) + 7px); top:calc(var(--t) - 18.2px); }
 #v3{ --l:79.8%; --t:65.6%; left:calc(var(--l) + 7px); top:calc(var(--t) - 18.2px); }
@@ -284,6 +285,7 @@ body{
   border:none;
   box-shadow:none;
   cursor:pointer;
+  pointer-events:auto;
 }
 
 /* =====================
@@ -293,11 +295,10 @@ body{
   position:fixed;
   inset:0;
   z-index:1000;
-  pointer-events:none;
+  pointer-events:none; /* MUST NOT block clicks */
   opacity:0;
-  transition:opacity 4s ease; /* very slow fade in/out */
+  transition:opacity 4s ease;
 }
-
 .freek-on{ opacity:1; }
 
 .freek-video{
@@ -308,26 +309,24 @@ body{
   object-fit:cover;
 }
 
-/* Freek images: JS sets their left/top; we keep them centered on that point */
 .freek-img{
   position:absolute;
   width: var(--freek-img-width);
   height:auto;
-  opacity:.5;              /* always 50% */
+  opacity:.5;
   transform:translate(-50%,-50%);
-  will-change: left, top;
+  will-change:left, top;
   user-select:none;
   pointer-events:none;
 }
 
-/* Mobile: keep it fitting */
+/* Mobile */
 @media (max-width: 520px){
   :root{
     --tv-left: 50vw;
     --tv-top: 42vh;
     --tv-width: 360px;
 
-    /* optional: scale wire down on mobile */
     --wire-width: 655px;
     --wire-left: 50vw;
     --wire-top: 50vh;
@@ -336,14 +335,9 @@ body{
   }
 }
 
-/* =====================
-   GIF COLUMN (VERTICAL)
-   ===================== */
-
+/* GIF COLUMN */
 .gif-column{
   position:absolute;
-
-  /* 🔧 MOVE THE WHOLE COLUMN HERE */
   left: 77vw;
   top: 51vh;
 
@@ -351,12 +345,11 @@ body{
   flex-direction:column;
   gap:14px;
 
-  /* above wire, below TV */
   z-index:2;
 }
 
 .gif-column img{
-  width:300px;     /* 🔧 GIF size */
+  width:300px;
   height:auto;
   display:block;
 }
