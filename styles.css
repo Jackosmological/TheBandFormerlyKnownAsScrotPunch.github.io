@@ -21,7 +21,7 @@
      ===================== */
   --wire-left: 48vw;
   --wire-top: 46vh;
-  --wire-width: 302px;
+  --wire-width: 308px;
   --wire-rot: 0deg;
 
   
@@ -30,11 +30,11 @@
      FREEK BUTTON POSITION
      (inside TV rig, percentages of TV box)
      ===================== */
-  --freek-btn-left: 140%;
+  --freek-btn-left: 138%;
   --freek-btn-top: 95%;
 
   /* Freek image size */
-  --freek-img-width: 220px;
+  --freek-img-width: 320px;
 }
 
 html, body{
