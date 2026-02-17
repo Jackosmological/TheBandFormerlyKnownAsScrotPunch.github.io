@@ -1,4 +1,3 @@
-<!-- index.html — FULL copy/paste -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,7 +9,7 @@
 
 <body>
 
-  <!-- WIRE (separate layer: above background, below everything else) -->
+  <!-- WIRE -->
   <img class="wire" src="wire1.png" alt="">
 
   <!-- FULLSCREEN FREEK OVERLAY -->
@@ -35,12 +34,10 @@
 
     <img class="tv-screen" src="screen.png" alt="">
 
-    <!-- Static video layer (TV transition static) -->
     <video class="tv-static-video" id="staticVideo" loop playsinline muted preload="auto">
       <source src="static.mp4" type="video/mp4">
     </video>
 
-    <!-- Idle overlay video (50% opacity, quiet) -->
     <video class="tv-idle-video" id="idleVideo" loop playsinline preload="auto">
       <source src="idle.mp4" type="video/mp4">
     </video>
@@ -49,396 +46,382 @@
       <source src="band.mp4" type="video/mp4">
     </video>
 
-    <button class="play-btn" id="playBtn" aria-label="Play/Pause"></button>
+    <button class="play-btn" id="playBtn" aria-label="Play/Pause" type="button"></button>
 
     <img class="tv-frame" src="tv.png" alt="">
 
-    <!-- Invisible click targets -->
-    <button class="vid-btn" id="v1" data-src="band1.mp4" aria-label="Play band 1">1</button>
-    <button class="vid-btn" id="v2" data-src="band2.mp4" aria-label="Play band 2">2</button>
-    <button class="vid-btn" id="v3" data-src="band3.mp4" aria-label="Play band 3">3</button>
-    <button class="vid-btn" id="v4" data-src="band4.mp4" aria-label="Play band 4">4</button>
-    <button class="vid-btn" id="v5" data-src="band5.mp4" aria-label="Play band 5">5</button>
+    <button class="vid-btn" id="v1" data-src="band1.mp4" aria-label="Play band 1" type="button">1</button>
+    <button class="vid-btn" id="v2" data-src="band2.mp4" aria-label="Play band 2" type="button">2</button>
+    <button class="vid-btn" id="v3" data-src="band3.mp4" aria-label="Play band 3" type="button">3</button>
+    <button class="vid-btn" id="v4" data-src="band4.mp4" aria-label="Play band 4" type="button">4</button>
+    <button class="vid-btn" id="v5" data-src="band5.mp4" aria-label="Play band 5" type="button">5</button>
 
-    <button class="vid-btn" id="vDefault" data-src="band.mp4" aria-label="Play default video">DEFAULT</button>
+    <button class="vid-btn" id="vDefault" data-src="band.mp4" aria-label="Play default video" type="button">DEFAULT</button>
 
-    <!-- INVISIBLE but larger freek click target -->
-    <button class="freek-btn" id="freekBtn" aria-label="Freek static event"></button>
+    <button class="freek-btn" id="freekBtn" aria-label="Freek static event" type="button"></button>
 
   </div>
 
-  <!-- TV transition static audio (unchanged) -->
   <audio id="staticAudio" loop preload="auto">
     <source src="static.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- FREEK overlay audio (separate so it doesn't fight the TV transitions) -->
   <audio id="freekAudio" loop preload="auto">
     <source src="static.mp3" type="audio/mpeg">
   </audio>
 
 <script>
-const tv = document.getElementById("tv");
+/* IMPORTANT: bind after DOM exists */
+document.addEventListener("DOMContentLoaded", () => {
 
-const video = document.getElementById("video");
-const videoSource = video.querySelector("source");
+  const tv = document.getElementById("tv");
 
-const staticVideo = document.getElementById("staticVideo");
-const idleVideo = document.getElementById("idleVideo");
+  const video = document.getElementById("video");
+  const videoSource = video.querySelector("source");
 
-const btn = document.getElementById("playBtn");
-const staticAudio = document.getElementById("staticAudio");
+  const staticVideo = document.getElementById("staticVideo");
+  const idleVideo = document.getElementById("idleVideo");
 
-let videoMode = false;
-let switching = false;
-let idleActive = false;
+  const btn = document.getElementById("playBtn");
+  const staticAudio = document.getElementById("staticAudio");
 
-/* Timing */
-const DELAY_BEFORE_NEW_VIDEO_MS = 1500;
-const QUICK_FADE_MS = 400;
-const SLOW_CROSSFADE_MS = 2000;
+  let videoMode = false;
+  let switching = false;
+  let idleActive = false;
 
-/* Idle */
-const IDLE_AFTER_MS = 30000;
-let idleTimer = null;
+  /* Timing */
+  const DELAY_BEFORE_NEW_VIDEO_MS = 1500;
+  const QUICK_FADE_MS = 400;
+  const SLOW_CROSSFADE_MS = 2000;
 
-/* ---------- audio fade helper (TV static) ---------- */
-let fadeRAF = null;
-function fadeAudioTo(target, ms){
-  cancelAnimationFrame(fadeRAF);
-  const startVol = Number.isFinite(staticAudio.volume) ? staticAudio.volume : 0;
-  const start = performance.now();
+  /* Idle */
+  const IDLE_AFTER_MS = 30000;
+  let idleTimer = null;
 
-  function tick(t){
-    const p = Math.min(1, (t - start) / ms);
-    staticAudio.volume = startVol + (target - startVol) * p;
-    if(p < 1) fadeRAF = requestAnimationFrame(tick);
+  /* ---------- audio fade helper (TV static) ---------- */
+  let fadeRAF = null;
+  function fadeAudioTo(target, ms){
+    cancelAnimationFrame(fadeRAF);
+    const startVol = Number.isFinite(staticAudio.volume) ? staticAudio.volume : 0;
+    const start = performance.now();
+
+    function tick(t){
+      const p = Math.min(1, (t - start) / ms);
+      staticAudio.volume = startVol + (target - startVol) * p;
+      if(p < 1) fadeRAF = requestAnimationFrame(tick);
+    }
+    fadeRAF = requestAnimationFrame(tick);
   }
-  fadeRAF = requestAnimationFrame(tick);
-}
 
-/* ---------- audio fade helper (FREEK audio) ---------- */
-let freekFadeRAF = null;
-const freekAudio = document.getElementById("freekAudio");
-function fadeFreekAudioTo(target, ms){
-  cancelAnimationFrame(freekFadeRAF);
-  const startVol = Number.isFinite(freekAudio.volume) ? freekAudio.volume : 0;
-  const start = performance.now();
+  /* ---------- audio fade helper (FREEK audio) ---------- */
+  const freekAudio = document.getElementById("freekAudio");
+  let freekFadeRAF = null;
+  function fadeFreekAudioTo(target, ms){
+    cancelAnimationFrame(freekFadeRAF);
+    const startVol = Number.isFinite(freekAudio.volume) ? freekAudio.volume : 0;
+    const start = performance.now();
 
-  function tick(t){
-    const p = Math.min(1, (t - start) / ms);
-    freekAudio.volume = startVol + (target - startVol) * p;
-    if(p < 1) freekFadeRAF = requestAnimationFrame(tick);
+    function tick(t){
+      const p = Math.min(1, (t - start) / ms);
+      freekAudio.volume = startVol + (target - startVol) * p;
+      if(p < 1) freekFadeRAF = requestAnimationFrame(tick);
+    }
+    freekFadeRAF = requestAnimationFrame(tick);
   }
-  freekFadeRAF = requestAnimationFrame(tick);
-}
 
-/* ---------- guarantee audio starts on first user gesture ---------- */
-let audioUnlocked = false;
-function unlockAudio(){
-  if(audioUnlocked) return;
-  audioUnlocked = true;
+  /* ---------- guarantee audio starts on first user gesture ---------- */
+  let audioUnlocked = false;
+  function unlockAudio(){
+    if(audioUnlocked) return;
+    audioUnlocked = true;
 
-  // unlock TV static audio
-  staticAudio.volume = 0;
-  staticAudio.play().then(()=> {
-    staticAudio.pause();
-    staticAudio.currentTime = 0;
-  }).catch(()=>{});
-
-  // unlock freek audio
-  freekAudio.volume = 0;
-  freekAudio.play().then(()=> {
-    freekAudio.pause();
-    freekAudio.currentTime = 0;
-  }).catch(()=>{});
-}
-window.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
-
-/* ---------- idle timer helpers ---------- */
-function resetIdleTimer(){
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => {
-    enterIdleMode();
-  }, IDLE_AFTER_MS);
-}
-
-/* Reset idle timer on any “interaction” */
-["pointerdown","keydown","touchstart","mousemove"].forEach(evt => {
-  window.addEventListener(evt, resetIdleTimer, { passive:true });
-});
-
-/* ---------- static layer controls ---------- */
-async function startStaticLayerQuick(){
-  tv.classList.add("static-on");
-  tv.classList.remove("static-out");
-
-  try{ await staticVideo.play(); }catch(e){}
-
-  if(staticAudio.paused){
-    staticAudio.currentTime = 0;
     staticAudio.volume = 0;
-    staticAudio.play().catch(()=>{});
-  }
-  fadeAudioTo(0.6, QUICK_FADE_MS);
-}
-
-function fadeOutStaticLayerSlow(){
-  tv.classList.add("static-out");
-  fadeAudioTo(0, SLOW_CROSSFADE_MS);
-
-  setTimeout(() => {
-    tv.classList.remove("static-on");
-    tv.classList.remove("static-out");
-    staticVideo.pause();
-    staticVideo.currentTime = 0;
-
-    if(staticAudio.volume <= 0.02){
+    staticAudio.play().then(()=> {
       staticAudio.pause();
       staticAudio.currentTime = 0;
+    }).catch(()=>{});
+
+    freekAudio.volume = 0;
+    freekAudio.play().then(()=> {
+      freekAudio.pause();
+      freekAudio.currentTime = 0;
+    }).catch(()=>{});
+  }
+  window.addEventListener("pointerdown", unlockAudio, { once:true, passive:true });
+
+  /* ---------- idle timer helpers ---------- */
+  function resetIdleTimer(){
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      enterIdleMode();
+    }, IDLE_AFTER_MS);
+  }
+  ["pointerdown","keydown","touchstart","mousemove"].forEach(evt => {
+    window.addEventListener(evt, resetIdleTimer, { passive:true });
+  });
+
+  /* ---------- static layer controls ---------- */
+  async function startStaticLayerQuick(){
+    tv.classList.add("static-on");
+    tv.classList.remove("static-out");
+
+    try{ await staticVideo.play(); }catch(e){}
+
+    if(staticAudio.paused){
+      staticAudio.currentTime = 0;
+      staticAudio.volume = 0;
+      staticAudio.play().catch(()=>{});
     }
-  }, SLOW_CROSSFADE_MS + 50);
-}
+    fadeAudioTo(0.6, QUICK_FADE_MS);
+  }
 
-/* ---------- idle mode ---------- */
-async function enterIdleMode(){
-  if(switching || idleActive) return;
+  function fadeOutStaticLayerSlow(){
+    tv.classList.add("static-out");
+    fadeAudioTo(0, SLOW_CROSSFADE_MS);
 
-  if(!videoMode){
-    await startStaticLayerQuick();
-  } else {
+    setTimeout(() => {
+      tv.classList.remove("static-on");
+      tv.classList.remove("static-out");
+      staticVideo.pause();
+      staticVideo.currentTime = 0;
+
+      if(staticAudio.volume <= 0.02){
+        staticAudio.pause();
+        staticAudio.currentTime = 0;
+      }
+    }, SLOW_CROSSFADE_MS + 50);
+  }
+
+  /* ---------- idle mode ---------- */
+  async function enterIdleMode(){
+    if(switching || idleActive) return;
+
+    if(!videoMode){
+      await startStaticLayerQuick();
+    } else {
+      tv.classList.add("video-fadeout");
+      await startStaticLayerQuick();
+      setTimeout(() => {
+        try{ video.pause(); }catch(e){}
+      }, QUICK_FADE_MS + 50);
+    }
+
+    tv.classList.remove("static-out");
+
+    idleActive = true;
+    tv.classList.add("idle-on");
+
+    idleVideo.muted = false;
+    idleVideo.volume = 0.2;
+
+    try{
+      idleVideo.currentTime = 0;
+      await idleVideo.play();
+    }catch(e){}
+  }
+
+  function exitIdleMode(){
+    if(!idleActive) return;
+
+    idleActive = false;
+    tv.classList.remove("idle-on");
+    try{ idleVideo.pause(); }catch(e){}
+    idleVideo.currentTime = 0;
+  }
+
+  /* ---------- core switch logic ---------- */
+  async function switchToVideo(src){
+    if(switching) return;
+    switching = true;
+
+    exitIdleMode();
+
+    if(!videoMode){
+      videoMode = true;
+      tv.classList.add("video-on");
+    }
+
     tv.classList.add("video-fadeout");
     await startStaticLayerQuick();
-    setTimeout(() => {
-      try{ video.pause(); }catch(e){}
-    }, QUICK_FADE_MS + 50);
+
+    setTimeout(async () => {
+      const current = videoSource.getAttribute("src") || "";
+      if(current !== src){
+        video.pause();
+        videoSource.setAttribute("src", src);
+        video.load();
+      }
+
+      try{ await video.play(); }catch(e){}
+
+      tv.classList.remove("video-fadeout");
+      fadeOutStaticLayerSlow();
+
+      setTimeout(() => {
+        switching = false;
+      }, SLOW_CROSSFADE_MS + 80);
+
+    }, DELAY_BEFORE_NEW_VIDEO_MS);
   }
 
-  tv.classList.remove("static-out");
+  /* ---------- play button behavior ---------- */
+  btn.onclick = async ()=>{
+    resetIdleTimer();
+    exitIdleMode();
 
-  idleActive = true;
-  tv.classList.add("idle-on");
-
-  idleVideo.muted = false;
-  idleVideo.volume = 0.2;
-
-  try{
-    idleVideo.currentTime = 0;
-    await idleVideo.play();
-  }catch(e){}
-}
-
-function exitIdleMode(){
-  if(!idleActive) return;
-
-  idleActive = false;
-  tv.classList.remove("idle-on");
-  try{ idleVideo.pause(); }catch(e){}
-  idleVideo.currentTime = 0;
-}
-
-/* ---------- core switch logic ---------- */
-async function switchToVideo(src){
-  if(switching) return;
-  switching = true;
-
-  exitIdleMode();
-
-  if(!videoMode){
-    videoMode = true;
-    tv.classList.add("video-on");
-  }
-
-  tv.classList.add("video-fadeout");
-  await startStaticLayerQuick();
-
-  setTimeout(async () => {
-    const current = videoSource.getAttribute("src") || "";
-    if(current !== src){
-      video.pause();
-      videoSource.setAttribute("src", src);
-      video.load();
+    if(!videoMode){
+      await switchToVideo(videoSource.getAttribute("src") || "band.mp4");
+      return;
     }
 
-    try{ await video.play(); }catch(e){}
+    if(video.paused){
+      try{ await video.play(); }catch(e){}
+    }else{
+      video.pause();
+    }
+  };
 
-    tv.classList.remove("video-fadeout");
-    fadeOutStaticLayerSlow();
-
-    setTimeout(() => {
-      switching = false;
-    }, SLOW_CROSSFADE_MS + 80);
-
-  }, DELAY_BEFORE_NEW_VIDEO_MS);
-}
-
-/* ---------- play button behavior ---------- */
-btn.onclick = async ()=>{
-  resetIdleTimer();
-  exitIdleMode();
-
-  if(!videoMode){
-    await switchToVideo(videoSource.getAttribute("src") || "band.mp4");
-    return;
-  }
-
-  if(video.paused){
-    try{ await video.play(); }catch(e){}
-  }else{
-    video.pause();
-  }
-};
-
-/* ---------- invisible buttons switch clips with static transition ---------- */
-document.querySelectorAll(".vid-btn").forEach(b => {
-  b.addEventListener("click", async (e) => {
-    e.stopPropagation();
-    resetIdleTimer();
-    const src = b.dataset.src;
-    if(src) await switchToVideo(src);
-  });
-});
-
-/* ==========================
-   FREEK OVERLAY EVENT + FLOATING PNGs
-   ========================== */
-const freekBtn = document.getElementById("freekBtn");
-const freekOverlay = document.getElementById("freekOverlay");
-const freekVideo = document.getElementById("freekVideo");
-const freekImgs = [
-  document.getElementById("freek1"),
-  document.getElementById("freek2"),
-  document.getElementById("freek3"),
-  document.getElementById("freek4"),
-];
-
-let freekOutTimer = null;
-let freekCleanupTimer = null;
-
-/* floating state */
-let floatRAF = null;
-let floatLastT = 0;
-let floatState = []; // {x,y,vx,vy,w,h}
-
-function startFloating(){
-  cancelAnimationFrame(floatRAF);
-  floatLastT = performance.now();
-
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  floatState = freekImgs.map(img => {
-    const rect = img.getBoundingClientRect();
-    const w = rect.width || 200;
-    const h = rect.height || 200;
-
-    const x = Math.random() * (vw - w) + w/2;
-    const y = Math.random() * (vh - h) + h/2;
-
-    const speed = 18 + Math.random() * 22; // slow
-    const ang = Math.random() * Math.PI * 2;
-    const vx = Math.cos(ang) * speed;
-    const vy = Math.sin(ang) * speed;
-
-    img.style.left = x + "px";
-    img.style.top  = y + "px";
-
-    return { x, y, vx, vy, w, h };
+  /* ---------- invisible buttons switch clips ---------- */
+  document.querySelectorAll(".vid-btn").forEach(b => {
+    b.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      resetIdleTimer();
+      const src = b.dataset.src;
+      if(src) await switchToVideo(src);
+    });
   });
 
-  function step(t){
-    const dt = Math.min(0.05, (t - floatLastT) / 1000);
-    floatLastT = t;
+  /* ==========================
+     FREEK OVERLAY EVENT + FLOATING PNGs
+     ========================== */
+  const freekBtn = document.getElementById("freekBtn");
+  const freekOverlay = document.getElementById("freekOverlay");
+  const freekVideo = document.getElementById("freekVideo");
+  const freekImgs = [
+    document.getElementById("freek1"),
+    document.getElementById("freek2"),
+    document.getElementById("freek3"),
+    document.getElementById("freek4"),
+  ];
 
-    const vw2 = window.innerWidth;
-    const vh2 = window.innerHeight;
+  let freekOutTimer = null;
+  let freekCleanupTimer = null;
 
-    for(let i=0;i<floatState.length;i++){
-      const s = floatState[i];
-      const img = freekImgs[i];
+  let floatRAF = null;
+  let floatLastT = 0;
+  let floatState = [];
 
-      s.x += s.vx * dt;
-      s.y += s.vy * dt;
+  function startFloating(){
+    cancelAnimationFrame(floatRAF);
+    floatLastT = performance.now();
 
-      const minX = s.w/2;
-      const maxX = vw2 - s.w/2;
-      const minY = s.h/2;
-      const maxY = vh2 - s.h/2;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-      if(s.x < minX){ s.x = minX; s.vx *= -1; }
-      if(s.x > maxX){ s.x = maxX; s.vx *= -1; }
-      if(s.y < minY){ s.y = minY; s.vy *= -1; }
-      if(s.y > maxY){ s.y = maxY; s.vy *= -1; }
+    floatState = freekImgs.map(img => {
+      const rect = img.getBoundingClientRect();
+      const w = rect.width || 200;
+      const h = rect.height || 200;
 
-      img.style.left = s.x + "px";
-      img.style.top  = s.y + "px";
+      const x = Math.random() * (vw - w) + w/2;
+      const y = Math.random() * (vh - h) + h/2;
+
+      const speed = 18 + Math.random() * 22;
+      const ang = Math.random() * Math.PI * 2;
+      const vx = Math.cos(ang) * speed;
+      const vy = Math.sin(ang) * speed;
+
+      img.style.left = x + "px";
+      img.style.top  = y + "px";
+
+      return { x, y, vx, vy, w, h };
+    });
+
+    function step(t){
+      const dt = Math.min(0.05, (t - floatLastT) / 1000);
+      floatLastT = t;
+
+      const vw2 = window.innerWidth;
+      const vh2 = window.innerHeight;
+
+      for(let i=0;i<floatState.length;i++){
+        const s = floatState[i];
+        const img = freekImgs[i];
+
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+
+        const minX = s.w/2, maxX = vw2 - s.w/2;
+        const minY = s.h/2, maxY = vh2 - s.h/2;
+
+        if(s.x < minX){ s.x = minX; s.vx *= -1; }
+        if(s.x > maxX){ s.x = maxX; s.vx *= -1; }
+        if(s.y < minY){ s.y = minY; s.vy *= -1; }
+        if(s.y > maxY){ s.y = maxY; s.vy *= -1; }
+
+        img.style.left = s.x + "px";
+        img.style.top  = s.y + "px";
+      }
+
+      floatRAF = requestAnimationFrame(step);
     }
 
     floatRAF = requestAnimationFrame(step);
   }
 
-  floatRAF = requestAnimationFrame(step);
-}
-
-function stopFloating(){
-  cancelAnimationFrame(floatRAF);
-  floatRAF = null;
-}
-
-/* FREEK event */
-let freekRunning = false;
-const freekAudio = document.getElementById("freekAudio");
-
-async function triggerFreek(){
-  resetIdleTimer();
-  exitIdleMode();
-
-  clearTimeout(freekOutTimer);
-  clearTimeout(freekCleanupTimer);
-  freekRunning = true;
-
-  try{ freekVideo.currentTime = 0; }catch(e){}
-  try{ await freekVideo.play(); }catch(e){}
-
-  if(freekAudio.paused){
-    freekAudio.currentTime = 0;
-    freekAudio.volume = 0;
-    freekAudio.play().catch(()=>{});
-  }else{
-    freekAudio.volume = 0;
+  function stopFloating(){
+    cancelAnimationFrame(floatRAF);
+    floatRAF = null;
   }
 
-  freekOverlay.classList.add("freek-on");
-  fadeFreekAudioTo(0.6, 4000);
+  async function triggerFreek(){
+    resetIdleTimer();
+    exitIdleMode();
 
-  requestAnimationFrame(() => startFloating());
+    clearTimeout(freekOutTimer);
+    clearTimeout(freekCleanupTimer);
 
-  freekOutTimer = setTimeout(() => {
-    freekOverlay.classList.remove("freek-on");
-    fadeFreekAudioTo(0, 2500);
-    stopFloating();
+    try{ freekVideo.currentTime = 0; }catch(e){}
+    try{ await freekVideo.play(); }catch(e){}
 
-    freekCleanupTimer = setTimeout(() => {
-      try{ freekVideo.pause(); }catch(e){}
-      freekVideo.currentTime = 0;
+    if(freekAudio.paused){
+      freekAudio.currentTime = 0;
+      freekAudio.volume = 0;
+      freekAudio.play().catch(()=>{});
+    }else{
+      freekAudio.volume = 0;
+    }
 
-      if(freekAudio.volume <= 0.02){
-        freekAudio.pause();
-        freekAudio.currentTime = 0;
-      }
-      freekRunning = false;
-    }, 2600);
+    freekOverlay.classList.add("freek-on");
+    fadeFreekAudioTo(0.6, 4000);
 
-  }, 6000);
-}
+    requestAnimationFrame(() => startFloating());
 
-freekBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  triggerFreek();
+    freekOutTimer = setTimeout(() => {
+      freekOverlay.classList.remove("freek-on");
+      fadeFreekAudioTo(0, 2500);
+      stopFloating();
+
+      freekCleanupTimer = setTimeout(() => {
+        try{ freekVideo.pause(); }catch(e){}
+        freekVideo.currentTime = 0;
+
+        if(freekAudio.volume <= 0.02){
+          freekAudio.pause();
+          freekAudio.currentTime = 0;
+        }
+      }, 2600);
+
+    }, 6000);
+  }
+
+  freekBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    triggerFreek();
+  });
+
+  resetIdleTimer();
 });
-
-/* Start the idle timer immediately */
-resetIdleTimer();
 </script>
 
 </body>
