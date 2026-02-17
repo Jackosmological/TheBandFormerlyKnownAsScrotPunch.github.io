@@ -1,16 +1,16 @@
 /* styles.css — FULL copy/paste
-   TV + all layers + buttons move together.
-   Updated to move + resize the whole TV rig into your drawn box. */
+   TV moved UP by 0.07 × its own height (using translateY(-7%)).
+   Everything stays together. */
 
 :root{
-  /* ✅ MOVE THE WHOLE TV RIG HERE */
-  --tv-left: 22vw;   /* more left = smaller number */
-  --tv-top: 33vh;    /* more up   = smaller number */
+  /* Move the whole TV rig here */
+  --tv-left: 22vw;
+  --tv-top: 33vh;
 
-  /* ✅ RESIZE THE WHOLE TV RIG HERE */
-  --tv-width: 560px; /* bigger = larger TV */
+  /* Resize the whole TV rig here */
+  --tv-width: 560px;
 
-  /* Screen rectangle inside tv.png (keep your tuned values) */
+  /* Screen rectangle inside tv.png */
   --sx: 8%;
   --sy: 8%;
   --sw: 78%;
@@ -35,7 +35,10 @@ body{
   position:absolute;
   left: var(--tv-left);
   top: var(--tv-top);
-  transform: translate(-50%, -50%); /* centered on the anchor point */
+
+  /* centered on anchor AND moved up by 7% of TV height */
+  transform: translate(-50%, -50%) translateY(-7%);
+
   width: var(--tv-width);
 }
 
@@ -231,3 +234,4 @@ body{
     --tv-width: 360px;
   }
 }
+
